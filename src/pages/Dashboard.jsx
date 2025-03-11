@@ -8,7 +8,7 @@ import {
   CircularProgress,
 } from "@mui/material";
 
-const API_KEY = "261CEM7OEOAFAZ0I"; // Replace with your API key
+const API_KEY = ""; // Replace with your API key
 
 const Dashboard = () => {
   const [searchTerm, setSearchTerm] = useState("");
