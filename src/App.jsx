@@ -12,6 +12,7 @@ import SignUp from "./pages/SignUp";
 import Watchlist from "./pages/Watchlist";
 import Holdings from "./pages/Holdings";
 import Profile from "./pages/Profile";
+import StockDetails from "./pages/StockDetails";
 
 function App() {
   const ProtectedRoute = ({ element }) => {
@@ -24,7 +25,7 @@ function App() {
       <AuthProvider>
         <div className="flex">
           <Sidebar />
-          <main className="p-6 flex-grow">
+          <main className="p-6 flex-grow w-100% h-screen">
             <Routes>
               <Route path="/signin" element={<SignIn />} />
               <Route path="/signup" element={<SignUp />} />
@@ -42,6 +43,7 @@ function App() {
                 path="/profile"
                 element={<ProtectedRoute element={<Profile />} />}
               />
+              <Route path="/stock/:symbol" element={<StockDetails />} />
             </Routes>
           </main>
         </div>
