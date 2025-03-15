@@ -1,42 +1,105 @@
 import { useState } from "react";
+import {
+  Container,
+  Paper,
+  TextField,
+  Button,
+  Typography,
+  Box,
+} from "@mui/material";
+
+import { useNavigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
+import { useSnackbar } from "../context/SnackbarProvider";
 
 const SignIn = () => {
+  const navigate = useNavigate();
   const { login } = useAuth();
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
+  const { showSnackbar } = useSnackbar(); // Use Snackbar Context
+
+  const [formData, setFormData] = useState({ email: "", password: "" });
+  const [openSnackbar, setOpenSnackbar] = useState(false);
+
+  const handleChange = (e) => {
+    setFormData({ ...formData, [e.target.name]: e.target.value });
+  };
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    login(email, password);
+    console.log("Logging in with:", formData);
+    // Implement login logic here
+    login();
+
+    showSnackbar("Successfully signed in!", "success"); // Show Snackbar
+
+    // setTimeout(() => navigate("/"), 1500); // Redirect after a delay
+    navigate("/");
   };
 
   return (
-    <div className="flex justify-center items-center h-screen">
-      <form onSubmit={handleSubmit} className="p-6 shadow-lg rounded-lg">
-        <h2 className="text-2xl font-bold mb-4">Sign In</h2>
-        <input
-          type="email"
-          placeholder="Email"
-          value={email}
-          onChange={(e) => setEmail(e.target.value)}
-          className="border p-2 w-full mb-2"
-        />
-        <input
-          type="password"
-          placeholder="Password"
-          value={password}
-          onChange={(e) => setPassword(e.target.value)}
-          className="border p-2 w-full mb-2"
-        />
-        <button
-          type="submit"
-          className="bg-blue-500 text-white px-4 py-2 rounded"
-        >
+    <Container
+      maxWidth="xs"
+      sx={{
+        display: "flex",
+        flexDirection: "column",
+        justifyContent: "center",
+        alignItems: "center",
+        minHeight: "100vh", // Ensures centering on full screen
+      }}
+    >
+      <Paper
+        elevation={3}
+        sx={{ p: 4, width: "100%", maxWidth: 400, textAlign: "center" }}
+      >
+        <Typography variant="h5" fontWeight="bold" gutterBottom>
           Sign In
-        </button>
-      </form>
-    </div>
+        </Typography>
+        <form onSubmit={handleSubmit}>
+          <TextField
+            fullWidth
+            margin="normal"
+            label="Email"
+            type="email"
+            name="email"
+            variant="outlined"
+            value={formData.email}
+            onChange={handleChange}
+            required
+          />
+          <TextField
+            fullWidth
+            margin="normal"
+            label="Password"
+            type="password"
+            name="password"
+            variant="outlined"
+            value={formData.password}
+            onChange={handleChange}
+            required
+          />
+          <Button
+            type="submit"
+            variant="contained"
+            color="primary"
+            fullWidth
+            sx={{ mt: 2 }}
+          >
+            Sign In
+          </Button>
+        </form>
+        <Box mt={2}>
+          <Typography variant="body2">
+            Don't have an account?{" "}
+            <Button
+              onClick={() => navigate("/signup")}
+              sx={{ textTransform: "none" }}
+            >
+              Sign Up
+            </Button>
+          </Typography>
+        </Box>
+      </Paper>
+    </Container>
   );
 };
 

@@ -9,6 +9,7 @@ import {
   ListItemText,
   IconButton,
   useMediaQuery,
+  Tooltip,
 } from "@mui/material";
 import {
   Menu,
@@ -23,13 +24,14 @@ import {
 } from "@mui/icons-material";
 
 const Sidebar = () => {
-  const [open, setOpen] = useState(false);
-  const [selectedItem, setSelectedItem] = useState("Dashboard");
+  const [state, setState] = useState({
+    open: false,
+    selectedItem: "Dashboard",
+    name: "User",
+  });
   const isLargeScreen = useMediaQuery("(min-width: 768px)");
 
   const { isLoggedIn, login, logout } = useAuth();
-
-  console.log("isLoggedIn", isLoggedIn);
 
   const menuItems = [
     { text: "Dashboard", icon: <Dashboard />, path: "/" },
@@ -51,13 +53,13 @@ const Sidebar = () => {
   const authItems = isLoggedIn
     ? [{ text: "Logout", icon: <Logout />, action: logout }]
     : [
-        { text: "Sign In", icon: <Login />, action: login },
-        { text: "Sign Up", icon: <HowToReg /> },
+        { text: "Sign In", icon: <Login />, path: "/signin" }, // Changed path
+        { text: "Sign Up", icon: <HowToReg />, path: "/signup" }, // Changed path
       ];
 
   const handleItemClick = (item) => {
     if (item.protected && !isLoggedIn) return;
-    setSelectedItem(item.text);
+    setState((prev) => ({ ...prev, selectedItem: item.text }));
 
     if (item.path) {
       window.location.href = item.path;
@@ -68,57 +70,66 @@ const Sidebar = () => {
     }
   };
 
-  console.log("selectedItem", selectedItem);
-
   return (
     <Drawer
       variant="permanent"
       sx={{
-        width: isLargeScreen ? (open ? 200 : 60) : 60,
+        width: isLargeScreen ? (state.open ? 200 : 60) : 60,
         flexShrink: 0,
         "& .MuiDrawer-paper": {
-          width: isLargeScreen ? (open ? 200 : 60) : 60,
+          width: isLargeScreen ? (state.open ? 200 : 60) : 60,
           transition: "width 0.3s",
         },
       }}
     >
       <div className="h-screen bg-white border-r flex flex-col items-center p-4">
-        <div className="w-full flex justify-end">
-          <IconButton onClick={() => setOpen(!open)}>
-            {open ? <Close /> : <Menu />}
+        <div className="w-full flex justify-between items-center">
+          {state.open && (
+            <span className="text-lg font-semibold">{state.name}</span>
+          )}
+          <IconButton
+            onClick={() => setState((prev) => ({ ...prev, open: !prev.open }))}
+          >
+            <Tooltip title={state.open ? "Close Menu" : "Open Menu"}>
+              {state.open ? <Close /> : <Menu />}
+            </Tooltip>
           </IconButton>
         </div>
         {/* Menu List */}
         <List className="flex-grow">
           {menuItems.map(({ text, icon, path, protected: isProtected }) => (
             <ListItem key={text} disablePadding>
-              <ListItemButton
-                onClick={() =>
-                  handleItemClick({ text, path, protected: isProtected })
-                }
-                disabled={isProtected && !isLoggedIn}
-              >
-                <ListItemIcon sx={{ justifyContent: "center" }}>
-                  {icon}
-                </ListItemIcon>
-                {open && <ListItemText primary={text} />}
-              </ListItemButton>
+              <Tooltip title={text} placement="right">
+                <ListItemButton
+                  onClick={() =>
+                    handleItemClick({ text, path, protected: isProtected })
+                  }
+                  disabled={isProtected && !isLoggedIn}
+                >
+                  <ListItemIcon sx={{ justifyContent: "center" }}>
+                    {icon}
+                  </ListItemIcon>
+                  {state.open && <ListItemText primary={text} />}
+                </ListItemButton>
+              </Tooltip>
             </ListItem>
           ))}
         </List>
         {/* Authentication Items */}
         <List>
-          {authItems.map(({ text, icon, action }) => (
+          {authItems.map(({ text, icon, action, path }) => (
             <ListItem key={text} disablePadding>
-              <ListItemButton
-                onClick={() => handleItemClick({ text, action })}
-                className="text-red-500"
-              >
-                <ListItemIcon sx={{ justifyContent: "center" }}>
-                  {icon}
-                </ListItemIcon>
-                {open && <ListItemText primary={text} />}
-              </ListItemButton>
+              <Tooltip title={text} placement="right">
+                <ListItemButton
+                  onClick={() => handleItemClick({ text, action, path })}
+                  className="text-red-500"
+                >
+                  <ListItemIcon sx={{ justifyContent: "center" }}>
+                    {icon}
+                  </ListItemIcon>
+                  {state.open && <ListItemText primary={text} />}
+                </ListItemButton>
+              </Tooltip>
             </ListItem>
           ))}
         </List>

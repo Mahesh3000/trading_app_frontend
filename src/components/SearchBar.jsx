@@ -1,37 +1,25 @@
-import { useState } from "react";
-import { TextField, CircularProgress, Autocomplete, Box } from "@mui/material";
+// components/SearchBar.jsx
+import React from "react";
+import { TextField, Box, CircularProgress } from "@mui/material";
 
-const SearchBar = ({ fetchCompanies, companyList, loading, setSearchTerm }) => {
+const SearchBar = ({ searchTerm, setSearchTerm, handleSearch, loading }) => {
   return (
     <Box sx={{ mb: 4 }}>
-      <Autocomplete
-        freeSolo
-        options={companyList}
-        getOptionLabel={(option) => `${option.name} (${option.symbol})`}
-        onInputChange={(event, newValue) => {
-          setSearchTerm(newValue);
-          fetchCompanies(newValue);
+      <TextField
+        label="Quick Stock Search"
+        variant="outlined"
+        fullWidth
+        value={searchTerm}
+        onChange={(e) => setSearchTerm(e.target.value)}
+        onKeyPress={handleSearch}
+        placeholder="Search for stocks by name or symbol to start trading"
+        InputLabelProps={{
+          shrink: true,
         }}
-        renderInput={(params) => (
-          <TextField
-            {...params}
-            label="Enter company name or symbol"
-            variant="outlined"
-            fullWidth
-            InputProps={{
-              ...params.InputProps,
-              endAdornment: (
-                <>
-                  {loading ? (
-                    <CircularProgress color="inherit" size={20} />
-                  ) : null}
-                  {params.InputProps.endAdornment}
-                </>
-              ),
-            }}
-          />
-        )}
       />
+      {loading && (
+        <CircularProgress color="inherit" size={24} sx={{ marginLeft: 2 }} />
+      )}
     </Box>
   );
 };
