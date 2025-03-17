@@ -27,7 +27,7 @@ const Sidebar = () => {
   const [state, setState] = useState({
     open: false,
     selectedItem: "Dashboard",
-    name: "User",
+    name: "Navigation",
   });
   const isLargeScreen = useMediaQuery("(min-width: 768px)");
 

@@ -1,5 +1,12 @@
 import React, { useState, useEffect } from "react";
-import { Typography, Card, CardContent, Box, Button } from "@mui/material";
+import {
+  Typography,
+  Card,
+  CardContent,
+  Box,
+  Button,
+  Grid,
+} from "@mui/material";
 import { Line } from "react-chartjs-2";
 import {
   Chart as ChartJS,
@@ -10,8 +17,13 @@ import {
   Title,
   Tooltip,
   Legend,
+  Filler, // Import Filler
 } from "chart.js";
+
+import StarBorderIcon from "@mui/icons-material/StarBorder";
+
 import { useParams } from "react-router-dom";
+import { useStock } from "../context/StockContext";
 
 ChartJS.register(
   CategoryScale,
@@ -20,28 +32,37 @@ ChartJS.register(
   LineElement,
   Title,
   Tooltip,
-  Legend
+  Legend,
+  Filler
 );
 
 const StockDetail = () => {
   const { symbol } = useParams();
+  const { stockDatas } = useStock(); // Access the stock data from context
+  console.log("stockDatas", stockDatas);
+
   const [stockData, setStockData] = useState(null);
   const [loading, setLoading] = useState(true);
   const [selectedMetric, setSelectedMetric] = useState("price");
   const [selectedRange, setSelectedRange] = useState("1D");
 
+  const marketStats = {
+    dayRange: "₹399.80 - ₹386.15",
+    volume: "3,72,355",
+    faceValue: "₹2",
+  };
   // Helper function to fetch stock data based on time range
   const fetchStockData = async (range) => {
     let apiUrl = "";
     switch (range) {
       case "1D":
-        apiUrl = `https://www.alphavantage.co/query?function=TIME_SERIES_DAILY_ADJUSTED&symbol=IBM&apikey=demo`;
+        apiUrl = `https://www.alphavantage.co/query?function=TIME_SERIES_DAILY&symbol=${stockDatas?.symbol}&apikey=261CEM7OEOAFAZ0I`;
         break;
       case "1W":
-        apiUrl = `https://www.alphavantage.co/query?function=TIME_SERIES_WEEKLY&symbol=IBM&apikey=demo`;
+        apiUrl = `https://www.alphavantage.co/query?function=TIME_SERIES_WEEKLY&symbol=${stockDatas?.symbol}&apikey=261CEM7OEOAFAZ0I`;
         break;
       case "1M":
-        apiUrl = `https://www.alphavantage.co/query?function=TIME_SERIES_MONTHLY&symbol=IBM&apikey=demo`;
+        apiUrl = `https://www.alphavantage.co/query?function=TIME_SERIES_MONTHLY&symbol=${stockDatas?.symbol}&apikey=261CEM7OEOAFAZ0I`;
         break;
       default:
         break;
@@ -121,71 +142,225 @@ const StockDetail = () => {
     ],
   };
 
+  const chartOptions = {
+    responsive: true,
+    plugins: {
+      legend: {
+        display: false, // Hide legend
+      },
+      title: {
+        display: false, // Hide title
+      },
+      filler: {
+        propagate: false,
+      },
+    },
+    scales: {
+      x: {
+        grid: {
+          display: false, // Hide x-axis grid lines
+        },
+      },
+      y: {
+        grid: {
+          display: true, // Show y-axis grid lines
+        },
+      },
+    },
+    elements: {
+      line: {
+        fill: true, // Fill the area under the line
+        backgroundColor: "rgba(136, 132, 216, 0.3)", // Shaded area color
+        borderColor: "#8884d8", // Line color
+        tension: 0.4, // Adjust line curve
+      },
+    },
+  };
   return (
     <Box sx={{ maxWidth: "1400px", margin: "auto", mt: 5 }}>
       <Typography variant="h4" fontWeight="bold" gutterBottom>
+        {stockDatas?.name.toUpperCase()}
+      </Typography>
+      <Typography variant="h5" gutterBottom>
         {symbol.toUpperCase()}
       </Typography>
-
-      {/* Time Range and Metric Buttons */}
-      <Box
-        sx={{
-          display: "flex",
-          justifyContent: "space-between",
-          alignItems: "center",
-          mb: 2,
-        }}
-      >
-        {/* Metric Selection */}
-        <Box>
-          {["Price", "Volume", "Combined"].map((metric) => (
-            <Button
-              key={metric}
-              variant={
-                selectedMetric === metric.toLowerCase()
-                  ? "contained"
-                  : "outlined"
-              }
-              onClick={() => setSelectedMetric(metric.toLowerCase())}
-              sx={{ mr: 1 }}
-            >
-              {metric}
-            </Button>
-          ))}
-        </Box>
-
-        {/* Time Range Selection */}
-        <Box>
-          {["1D", "1W", "1M"].map((range) => (
-            <Button
-              key={range}
-              variant={selectedRange === range ? "contained" : "outlined"}
-              onClick={() => {
-                setSelectedRange(range);
-                fetchStockData(range);
-              }}
-              sx={{ ml: 1 }}
-            >
-              {range}
-            </Button>
-          ))}
-        </Box>
+      <Box sx={{ display: "flex", justifyContent: "flex-end", mb: 3 }}>
+        <Button variant="contained" color="primary" sx={{ mr: 1 }}>
+          Trade
+        </Button>
+        <Button variant="outlined" startIcon={<StarBorderIcon />}>
+          Add to Watchlist
+        </Button>
       </Box>
 
-      {/* Enlarged Graph with Shaded Area */}
-      <Box sx={{ height: 500, mt: 3 }}>
-        <Line
-          data={chartData}
-          options={{
-            scales: {
-              x: {
-                ticks: {
-                  maxTicksLimit: 6, // Limit the number of x-axis labels
-                },
-              },
-            },
+      <Grid container spacing={2} sx={{ mb: 3 }}>
+        <Grid item xs={12} sm={6} md={3}>
+          <Card>
+            <CardContent>
+              <Typography variant="subtitle2" color="textSecondary">
+                Last Price
+              </Typography>
+              <Typography variant="h6" fontWeight="bold">
+                {/* ₹{stockDatas?.lastPrice} */}
+                6732
+              </Typography>
+            </CardContent>
+          </Card>
+        </Grid>
+
+        <Grid item xs={12} sm={6} md={3}>
+          <Card>
+            <CardContent>
+              <Typography variant="subtitle2" color="textSecondary">
+                Change
+              </Typography>
+              <Typography
+                variant="h6"
+                fontWeight="bold"
+                // color={stockDatas?.change > 0 ? "success.main" : "error.main"}
+              >
+                {/* {stockDatas?.change > 0 ? "↑" : "↓"} {stockDatas?.change}% */}
+                6732
+              </Typography>
+            </CardContent>
+          </Card>
+        </Grid>
+
+        <Grid item xs={12} sm={6} md={3}>
+          <Card>
+            <CardContent>
+              <Typography variant="subtitle2" color="textSecondary">
+                Open
+              </Typography>
+              <Typography variant="h6" fontWeight="bold">
+                {/* ₹{stockDatas?.open} */}
+                6732
+              </Typography>
+            </CardContent>
+          </Card>
+        </Grid>
+
+        <Grid item xs={12} sm={6} md={3}>
+          <Card>
+            <CardContent>
+              <Typography variant="subtitle2" color="textSecondary">
+                Previous Close
+              </Typography>
+              <Typography variant="h6" fontWeight="bold">
+                {/* ₹{stockDatas?.previousClose} */}
+                6732
+              </Typography>
+            </CardContent>
+          </Card>
+        </Grid>
+      </Grid>
+      {/* Time Range and Metric Buttons */}
+
+      <Box>
+        <Box
+          sx={{
+            display: "flex",
+            justifyContent: "space-between",
+            alignItems: "center",
+            mb: 2,
           }}
-        />
+        >
+          <Box sx={{ display: "flex", alignItems: "center", mb: 2, mr: 1 }}>
+            {/* Metric Selection */}
+            <Box>
+              {["Price", "Volume", "Combined"].map((metric) => (
+                <Button
+                  key={metric}
+                  variant={
+                    selectedMetric === metric.toLowerCase()
+                      ? "contained"
+                      : "outlined"
+                  }
+                  onClick={() => setSelectedMetric(metric.toLowerCase())}
+                  sx={{ mr: 1 }} // Remove right margin
+                >
+                  {metric}
+                </Button>
+              ))}
+            </Box>
+
+            {/* Time Range Selection */}
+            <Box>
+              {["1D", "1W", "1M", "3M", "6M", "YTD", "1Y"].map((range) => (
+                <Button
+                  key={range}
+                  variant={selectedRange === range ? "contained" : "outlined"}
+                  onClick={() => {
+                    setSelectedRange(range);
+                    fetchStockData(range);
+                  }}
+                  sx={{ ml: 1 }} // Remove left margin
+                >
+                  {range}
+                </Button>
+              ))}
+            </Box>
+          </Box>
+        </Box>
+
+        <Grid container spacing={3}>
+          <Grid item xs={12} md={8}>
+            <Box
+              sx={{
+                height: 300,
+                border: "1px solid #e0e0e0",
+                borderRadius: "8px",
+                padding: "16px",
+              }}
+            >
+              <Line data={chartData} options={chartOptions} />
+              <Typography variant="caption" align="left">
+                Last updated: Mar 16, 2025 22:30
+              </Typography>
+            </Box>
+          </Grid>
+
+          <Grid item xs={12} md={4}>
+            <Box sx={{ padding: "16px" }}>
+              <Typography variant="h6" gutterBottom>
+                Market Stats
+              </Typography>
+
+              <Grid container spacing={2}>
+                <Grid item xs={12}>
+                  <Box
+                    sx={{ display: "flex", justifyContent: "space-between" }}
+                  >
+                    <Typography variant="subtitle2">Day's Range</Typography>
+                    <Typography variant="body1">
+                      {marketStats.dayRange}
+                    </Typography>
+                  </Box>
+                </Grid>
+                <Grid item xs={12}>
+                  <Box
+                    sx={{ display: "flex", justifyContent: "space-between" }}
+                  >
+                    <Typography variant="subtitle2">Volume</Typography>
+                    <Typography variant="body1">
+                      {marketStats.volume}
+                    </Typography>
+                  </Box>
+                </Grid>
+                <Grid item xs={12}>
+                  <Box
+                    sx={{ display: "flex", justifyContent: "space-between" }}
+                  >
+                    <Typography variant="subtitle2">Face Value</Typography>
+                    <Typography variant="body1">
+                      {marketStats.faceValue}
+                    </Typography>
+                  </Box>
+                </Grid>
+              </Grid>
+            </Box>
+          </Grid>
+        </Grid>
       </Box>
     </Box>
   );
