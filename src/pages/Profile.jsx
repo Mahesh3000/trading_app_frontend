@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import {
   Box,
   Grid,
@@ -16,8 +16,59 @@ import {
 import RefreshIcon from "@mui/icons-material/Refresh";
 import ArrowDropUpIcon from "@mui/icons-material/ArrowDropUp";
 import ArrowDropDownIcon from "@mui/icons-material/ArrowDropDown";
+import AddFundsModal from "../components/AddFundsModal";
+import { addFunds, getProfile } from "../services/apis";
+import useUserSession from "../hooks/useAuth";
 
 const Profile = () => {
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const { user } = useUserSession(); // Get user from session
+  // console.log("user", user);
+
+  const [profile, setProfile] = useState(null);
+  const [loading, setLoading] = useState(true);
+
+  const handleOpenModal = () => {
+    setIsModalOpen(true);
+  };
+
+  const handleCloseModal = () => {
+    setIsModalOpen(false);
+  };
+
+  const handleAddFunds = async (amount) => {
+    if (!user?.id) {
+      console.error("User ID is undefined");
+      return;
+    }
+
+    try {
+      const response = await addFunds(user.id, amount);
+      setProfile(response?.user);
+    } catch (error) {
+      console.error("Error adding funds:", error);
+    }
+  };
+
+  useEffect(() => {
+    fetchProfile();
+  }, [user]);
+
+  const fetchProfile = async () => {
+    setLoading(true);
+    try {
+      if (user?.id) {
+        // console.log("logging");
+        const userId = user?.id;
+        const response = await getProfile(userId);
+        setProfile(response);
+      }
+    } catch (error) {
+      console.error("Error fetching profile:", error);
+    }
+    setLoading(false);
+  };
+
   return (
     <Box sx={{ padding: "20px" }}>
       <Grid container spacing={2}>
@@ -34,12 +85,19 @@ const Profile = () => {
                 variant="outlined"
                 size="small"
                 sx={{ marginLeft: "10px" }}
+                onClick={handleOpenModal}
               >
                 + Add Funds
               </Button>
+
+              <AddFundsModal
+                open={isModalOpen}
+                onClose={handleCloseModal}
+                onAddFunds={handleAddFunds}
+              />
             </Box>
             <Typography variant="h6" sx={{ marginTop: "10px" }}>
-              $100000.00
+              ${profile?.available_balance}
             </Typography>
           </Paper>
         </Grid>
@@ -84,8 +142,8 @@ const Profile = () => {
                 <RefreshIcon />
               </IconButton>
             </Box>
-            <Typography variant="body2">Name: kjdnhkj</Typography>
-            <Typography variant="body2">Email: qqqqqqq@qqq.qqq</Typography>
+            <Typography variant="body2">Name: {profile?.username}</Typography>
+            <Typography variant="body2">Email: {profile?.email}</Typography>
             <Typography variant="body2">Net P/L: ₹0.00</Typography>
           </Paper>
         </Grid>

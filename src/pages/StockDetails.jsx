@@ -17,13 +17,12 @@ import {
   Title,
   Tooltip,
   Legend,
-  Filler, // Import Filler
+  Filler,
 } from "chart.js";
-
 import StarBorderIcon from "@mui/icons-material/StarBorder";
-
 import { useParams } from "react-router-dom";
 import { useStock } from "../context/StockContext";
+import TradeModal from "../components/TradeModal"; // Import the TradeModal component
 
 ChartJS.register(
   CategoryScale,
@@ -52,17 +51,33 @@ const StockDetail = () => {
     faceValue: "₹2",
   };
   // Helper function to fetch stock data based on time range
+  // const fetchStockData = async (range) => {
+  //   let apiUrl = "";
+  //   switch (range) {
+  //     case "1D":
+  //       apiUrl = `https://www.alphavantage.co/query?function=TIME_SERIES_DAILY&symbol=${stockDatas?.symbol}&apikey=261CEM7OEOAFAZ0I`;
+  //       break;
+  //     case "1W":
+  //       apiUrl = `https://www.alphavantage.co/query?function=TIME_SERIES_WEEKLY&symbol=${stockDatas?.symbol}&apikey=261CEM7OEOAFAZ0I`;
+  //       break;
+  //     case "1M":
+  //       apiUrl = `https://www.alphavantage.co/query?function=TIME_SERIES_MONTHLY&symbol=${stockDatas?.symbol}&apikey=261CEM7OEOAFAZ0I`;
+  //       break;
+  //     default:
+  //       break;
+  //   }
+
   const fetchStockData = async (range) => {
     let apiUrl = "";
     switch (range) {
       case "1D":
-        apiUrl = `https://www.alphavantage.co/query?function=TIME_SERIES_DAILY&symbol=${stockDatas?.symbol}&apikey=261CEM7OEOAFAZ0I`;
+        apiUrl = `  https://www.alphavantage.co/query?function=TIME_SERIES_DAILY&symbol=IBM&apikey=demo`;
         break;
       case "1W":
-        apiUrl = `https://www.alphavantage.co/query?function=TIME_SERIES_WEEKLY&symbol=${stockDatas?.symbol}&apikey=261CEM7OEOAFAZ0I`;
+        apiUrl = `  https://www.alphavantage.co/query?function=TIME_SERIES_DAILY&symbol=IBM&apikey=demo`;
         break;
       case "1M":
-        apiUrl = `https://www.alphavantage.co/query?function=TIME_SERIES_MONTHLY&symbol=${stockDatas?.symbol}&apikey=261CEM7OEOAFAZ0I`;
+        apiUrl = `  https://www.alphavantage.co/query?function=TIME_SERIES_DAILY&symbol=IBM&apikey=demo`;
         break;
       default:
         break;
@@ -185,10 +200,15 @@ const StockDetail = () => {
         {symbol.toUpperCase()}
       </Typography>
       <Box sx={{ display: "flex", justifyContent: "flex-end", mb: 3 }}>
-        <Button variant="contained" color="primary" sx={{ mr: 1 }}>
+        {/* <Button variant="contained" color="primary" sx={{ mr: 1 }}>
           Trade
-        </Button>
-        <Button variant="outlined" startIcon={<StarBorderIcon />}>
+        </Button> */}
+        <TradeModal /> {/* Render the TradeModal component here */}
+        <Button
+          variant="outlined"
+          startIcon={<StarBorderIcon />}
+          sx={{ ml: 2 }}
+        >
           Add to Watchlist
         </Button>
       </Box>

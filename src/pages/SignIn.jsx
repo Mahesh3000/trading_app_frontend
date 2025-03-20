@@ -18,7 +18,6 @@ const SignIn = () => {
   const { showSnackbar } = useSnackbar(); // Use Snackbar Context
 
   const [formData, setFormData] = useState({ email: "", password: "" });
-  const [openSnackbar, setOpenSnackbar] = useState(false);
 
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });

@@ -29,8 +29,6 @@ function App() {
         <AuthProvider>
           <SnackbarProvider>
             <StockProvider>
-              {" "}
-              {/* Make sure StockProvider is here */}
               <div className="flex">
                 <Sidebar />
                 <main className="p-6 flex-grow w-100% h-screen">

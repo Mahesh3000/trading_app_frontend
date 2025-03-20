@@ -9,9 +9,15 @@ import {
 } from "@mui/material";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
+import { signupUser } from "../services/apis";
+import useUserSession from "../hooks/useAuth";
+import { useSnackbar } from "../context/SnackbarProvider";
 
 const SignUp = () => {
   const navigate = useNavigate();
+  const { saveAuthData } = useUserSession(); // Use the custom hook
+  const { showSnackbar } = useSnackbar(); // Use Snackbar Context
+
   const { login } = useAuth();
   const [formData, setFormData] = useState({
     name: "",
@@ -24,16 +30,27 @@ const SignUp = () => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
+
     if (formData.password !== formData.confirmPassword) {
-      alert("Passwords do not match!");
+      console.log("Passwords do not match!");
       return;
     }
-    login();
-    console.log("Signing up with:", formData);
-    // Implement sign-up logic here
-    navigate("/dashboard"); // Redirect after signup
+    try {
+      const response = await signupUser(formData);
+
+      if (response?.token) {
+        // Ensure backend returns 200
+        const { token, user } = response;
+        login();
+        saveAuthData(user, token); // Save to local storage using the custom hook
+        navigate("/"); // Redirect after successful signup
+        showSnackbar("Successfully signed up!", "success"); // Show Snackbar
+      }
+    } catch (error) {
+      console.error("Error signing up:", error.response?.data || error.message);
+    }
   };
 
   return (
