@@ -1,302 +1,52 @@
 import React, { useEffect, useState } from "react";
-import { Container, Typography, Box, Button, Grid2 } from "@mui/material";
+import { Container, Box } from "@mui/material";
 import { useNavigate } from "react-router-dom";
 import SearchBar from "../components/SearchBar"; // Import the SearchBar component
 import PlatformFeatures from "../components/PlatformFeatures";
 import Footer from "../components/Footer";
-import { fetchScrips } from "../services/apis"; // Import the fetchScrips function from api.js
+import { fetchCoins } from "../services/apis"; // Import the fetchCoins function from api.js
 import Header from "../components/Header";
-import StockCard from "../components/StockCard";
-
-// Sample static stock data
-const searchItems = [
-  {
-    symbol: "A",
-    name: "Agilent Technologies Inc",
-    exchange: "NYSE",
-    assetType: "Stock",
-    ipoDate: "1999-11-18",
-    delistingDate: "null",
-    status: "Active",
-  },
-  {
-    symbol: "AA",
-    name: "Alcoa Corp",
-    exchange: "NYSE",
-    assetType: "Stock",
-    ipoDate: "2016-10-18",
-    delistingDate: "null",
-    status: "Active",
-  },
-  {
-    symbol: "AAA",
-    name: "ALTERNATIVE ACCESS FIRST PRIORITY CLO BOND ETF ",
-    exchange: "NYSE ARCA",
-    assetType: "ETF",
-    ipoDate: "2020-09-09",
-    delistingDate: "null",
-    status: "Active",
-  },
-  {
-    symbol: "AAAU",
-    name: "Goldman Sachs Physical Gold ETF",
-    exchange: "BATS",
-    assetType: "ETF",
-    ipoDate: "2018-08-15",
-    delistingDate: "null",
-    status: "Active",
-  },
-  {
-    symbol: "AACBU",
-    name: "Artius II Acquisition Inc - Units (1 Ord Shs & 1 Rts)",
-    exchange: "NASDAQ",
-    assetType: "Stock",
-    ipoDate: "2025-02-13",
-    delistingDate: "null",
-    status: "Active",
-  },
-  {
-    symbol: "AACG",
-    name: "ATA Creativity Global",
-    exchange: "NASDAQ",
-    assetType: "Stock",
-    ipoDate: "2008-01-29",
-    delistingDate: "null",
-    status: "Active",
-  },
-  {
-    symbol: "AACT",
-    name: "Ares Acquisition Corporation II - Class A",
-    exchange: "NYSE",
-    assetType: "Stock",
-    ipoDate: "2023-06-12",
-    delistingDate: "null",
-    status: "Active",
-  },
-  {
-    symbol: "AACT-U",
-    name: "Ares Acquisition Corporation II - Units (1 Ord Class A & 1/2 War)",
-    exchange: "NYSE",
-    assetType: "Stock",
-    ipoDate: "2023-04-21",
-    delistingDate: "null",
-    status: "Active",
-  },
-  {
-    symbol: "AACT-WS",
-    name: "Ares Acquisition Corporation II - Warrants (01/01/9999)",
-    exchange: "NYSE",
-    assetType: "Stock",
-    ipoDate: "2023-06-12",
-    delistingDate: "null",
-    status: "Active",
-  },
-  {
-    symbol: "AADI",
-    name: "Aadi Bioscience Inc",
-    exchange: "NASDAQ",
-    assetType: "Stock",
-    ipoDate: "2017-08-08",
-    delistingDate: "null",
-    status: "Active",
-  },
-  {
-    symbol: "AADR",
-    name: "ADVISORSHARES DORSEY WRIGHT ADR ETF ",
-    exchange: "NASDAQ",
-    assetType: "ETF",
-    ipoDate: "2010-07-21",
-    delistingDate: "null",
-    status: "Active",
-  },
-  {
-    symbol: "AAL",
-    name: "American Airlines Group Inc",
-    exchange: "NASDAQ",
-    assetType: "Stock",
-    ipoDate: "2005-09-27",
-    delistingDate: "null",
-    status: "Active",
-  },
-  {
-    symbol: "AAM",
-    name: "AA Mission Acquisition Corp - Class A",
-    exchange: "NYSE",
-    assetType: "Stock",
-    ipoDate: "2024-09-16",
-    delistingDate: "null",
-    status: "Active",
-  },
-  {
-    symbol: "AAM-U",
-    name: "AA Mission Acquisition Corp - Units (1 Ord Share Class A & 1/2 War)",
-    exchange: "NYSE",
-    assetType: "Stock",
-    ipoDate: "2024-08-01",
-    delistingDate: "null",
-    status: "Active",
-  },
-  {
-    symbol: "AAM-WS",
-    name: "AA Mission Acquisition Corp Warrants each whole warrant entitles the holder to purchase one Class A ordinary share at a price of 11.50 per share",
-    exchange: "NYSE",
-    assetType: "Stock",
-    ipoDate: "2024-09-16",
-    delistingDate: "null",
-    status: "Active",
-  },
-  {
-    symbol: "AAME",
-    name: "Atlantic American Corp",
-    exchange: "NASDAQ",
-    assetType: "Stock",
-    ipoDate: "1984-09-07",
-    delistingDate: "null",
-    status: "Active",
-  },
-  {
-    symbol: "AAMI",
-    name: "BrightSphere Investment Group Inc",
-    exchange: "NYSE",
-    assetType: "Stock",
-    ipoDate: "2018-03-26",
-    delistingDate: "null",
-    status: "Active",
-  },
-  {
-    symbol: "AAOI",
-    name: "Applied Optoelectronics Inc",
-    exchange: "NASDAQ",
-    assetType: "Stock",
-    ipoDate: "2013-09-26",
-    delistingDate: "null",
-    status: "Active",
-  },
-  {
-    symbol: "AAON",
-    name: "AAON Inc",
-    exchange: "NASDAQ",
-    assetType: "Stock",
-    ipoDate: "1992-12-16",
-    delistingDate: "null",
-    status: "Active",
-  },
-  {
-    symbol: "AAP",
-    name: "Advance Auto Parts Inc",
-    exchange: "NYSE",
-    assetType: "Stock",
-    ipoDate: "2001-11-29",
-    delistingDate: "null",
-    status: "Active",
-  },
-  {
-    symbol: "AAPB",
-    name: "GRANITESHARES 1.75X LONG AAPL DAILY ETF ",
-    exchange: "NASDAQ",
-    assetType: "ETF",
-    ipoDate: "2022-08-09",
-    delistingDate: "null",
-    status: "Active",
-  },
-  {
-    symbol: "AAPD",
-    name: "DIREXION DAILY AAPL BEAR 1X SHARES ",
-    exchange: "NASDAQ",
-    assetType: "ETF",
-    ipoDate: "2022-08-09",
-    delistingDate: "null",
-    status: "Active",
-  },
-  {
-    symbol: "AAPG",
-    name: "Ascentage Pharma Group International",
-    exchange: "NASDAQ",
-    assetType: "Stock",
-    ipoDate: "2025-01-24",
-    delistingDate: "null",
-    status: "Active",
-  },
-  {
-    symbol: "AAPGV",
-    name: "Ascentage Pharma Group International American Depository Shares",
-    exchange: "NASDAQ",
-    assetType: "Stock",
-    ipoDate: "2025-01-24",
-    delistingDate: "null",
-    status: "Active",
-  },
-  {
-    symbol: "AAPL",
-    name: "Apple Inc",
-    exchange: "NASDAQ",
-    assetType: "Stock",
-    ipoDate: "1980-12-12",
-    delistingDate: "null",
-    status: "Active",
-  },
-  {
-    symbol: "AAPR",
-    name: "Innovator Equity Defined Protection ETF - 2 Yr to April 2026",
-    exchange: "BATS",
-    assetType: "ETF",
-    ipoDate: "2024-04-01",
-    delistingDate: "null",
-    status: "Active",
-  },
-  {
-    symbol: "AAPU",
-    name: "DIREXION DAILY AAPL BULL 1.5X SHARES ",
-    exchange: "NASDAQ",
-    assetType: "ETF",
-    ipoDate: "2022-08-09",
-    delistingDate: "null",
-    status: "Active",
-  },
-];
 
 const Dashboard = () => {
   const navigate = useNavigate();
-  const [searchTerm, setSearchTerm] = useState("");
-  const [loading, setLoading] = useState(false);
-  const [stockData, setStockData] = useState(null);
-  const [filteredStocks, setFilteredStocks] = useState(searchItems);
+  const [searchTerm, setSearchTerm] = useState(""); // For capturing search input
+  const [loading, setLoading] = useState(false); // For tracking loading state
+  const [coinData, setCoinData] = useState([]); // Storing fetched coin data
+  const [filteredCoins, setFilteredCoins] = useState([]); // Storing filtered coins
 
+  // Fetch coin data on initial load and whenever search term changes
   useEffect(() => {
-    const getStockData = async () => {
-      setLoading(true);
+    const getCoinData = async () => {
+      if (searchTerm.trim() === "") {
+        return; // Prevent API call if search term is empty
+      }
+      setLoading(true); // Set loading to true during the fetch
       try {
-        const response = searchItems;
-        // await fetchScrips(searchTerm);
-        setStockData(response); // Assuming response contains the list of stocks
-        setFilteredStocks(response); // Display all stocks initially
+        const response = await fetchCoins(searchTerm); // Fetching data from the API
+        setCoinData(response); // Store the fetched coin data
+        setFilteredCoins(response); // Set the initial filtered coins as the full list
       } catch (error) {
-        console.error("Error fetching stock data:", error);
+        console.error("Error fetching coin data:", error); // Handle any errors
       } finally {
-        setLoading(false);
+        setLoading(false); // Set loading to false once the API call is complete
       }
     };
 
-    getStockData();
-  }, []); // Empty dependency array means this effect runs once when the component mounts
-
-  const handleSearch = (e) => {
-    // Dynamically filter the list of stocks based on the search term
-    const filtered = searchItems.filter(
-      (stock) =>
-        stock.symbol.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        stock.name.toLowerCase().includes(searchTerm.toLowerCase())
-    );
-    setFilteredStocks(filtered);
-  };
-
-  useEffect(() => {
+    // Call the API when the component mounts or when search term changes
     if (searchTerm === "") {
-      setFilteredStocks(searchItems); // If search term is empty, show all
+      setFilteredCoins(coinData); // Show all coins if search term is empty
     } else {
-      handleSearch(); // Trigger search on searchTerm change
+      // Filter coins based on the search term
+      const filtered = coinData.filter(
+        (coin) =>
+          coin.symbol.toLowerCase().includes(searchTerm.toLowerCase()) ||
+          coin.name.toLowerCase().includes(searchTerm.toLowerCase())
+      );
+      setFilteredCoins(filtered); // Update filtered coins
     }
-  }, [searchTerm]);
+
+    getCoinData(); // Call the API whenever search term changes
+  }, [searchTerm]); // This will run whenever the search term changes
 
   return (
     <Container maxWidth="md" sx={{ mt: 4 }}>
@@ -305,12 +55,10 @@ const Dashboard = () => {
         <SearchBar
           searchTerm={searchTerm}
           setSearchTerm={setSearchTerm}
-          handleSearch={handleSearch}
           loading={loading}
-          suggestions={filteredStocks} // Pass filtered stocks to SearchBar
+          suggestions={filteredCoins} // Pass the filtered coins data to the SearchBar component
         />
       </Box>
-
       <PlatformFeatures />
       <Footer />
     </Container>

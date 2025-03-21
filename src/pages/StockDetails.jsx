@@ -23,6 +23,8 @@ import StarBorderIcon from "@mui/icons-material/StarBorder";
 import { useParams } from "react-router-dom";
 import { useStock } from "../context/StockContext";
 import TradeModal from "../components/TradeModal"; // Import the TradeModal component
+import useUserSession from "../hooks/useAuth";
+import { addWatchlist } from "../services/apis";
 
 ChartJS.register(
   CategoryScale,
@@ -39,6 +41,7 @@ const StockDetail = () => {
   const { symbol } = useParams();
   const { stockDatas } = useStock(); // Access the stock data from context
   console.log("stockDatas", stockDatas);
+  const { user } = useUserSession(); // Get user from session
 
   const [stockData, setStockData] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -90,6 +93,26 @@ const StockDetail = () => {
       setLoading(false);
     } catch (error) {
       console.error("Error fetching stock data:", error);
+    }
+  };
+
+  const handleAddToWatchlist = async () => {
+    console.log("watch list added");
+    if (!user?.id) {
+      console.error("User ID is undefined");
+      return;
+    }
+    try {
+      console.log(user?.id);
+
+      const response = await addWatchlist(
+        user.id,
+        stockDatas?.symbol,
+        stockDatas?.name
+      );
+      console.log("response", response);
+    } catch (error) {
+      console.error("Error adding funds:", error);
     }
   };
 
@@ -208,6 +231,7 @@ const StockDetail = () => {
           variant="outlined"
           startIcon={<StarBorderIcon />}
           sx={{ ml: 2 }}
+          onClick={handleAddToWatchlist}
         >
           Add to Watchlist
         </Button>
