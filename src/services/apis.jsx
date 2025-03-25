@@ -5,14 +5,10 @@ import config from "../config";
 
 export const fetchCoins = async (searchTerm) => {
   try {
-    console.log("searchTerm", searchTerm);
-
     // Use axios to make the request
     const response = await axios.get(
-      `${config.SEARCH_SCRIPS_URL}?term=${searchTerm}`
+      `${config.SEARCH_SCRIPS_URL}?query=${searchTerm}`
     ); // Add searchTerm as a query parameter
-
-    console.log("response", response);
 
     return response.data; // Return the data from the response
   } catch (error) {
@@ -87,6 +83,28 @@ export const getWatchlist = async (userId) => {
   try {
     const response = await axios.get(`${config.GET_WATCHLIST_URL}/${userId}`);
     return response.data.watchlist; // Return the watchlist from response
+  } catch (error) {
+    console.error("Error fetching watchlist", error);
+    throw error;
+  }
+};
+
+export const getCoinData = async (userId) => {
+  try {
+    const response = await axios.get(`${config.GET_COIN_DATA}/${userId}`);
+    return response.data;
+  } catch (error) {
+    console.error("Error fetching watchlist", error);
+    throw error;
+  }
+};
+
+export const getChartCoinData = async (userId, days) => {
+  try {
+    const response = await axios.get(
+      `${config.GET_COIN_DATA}/${userId}/chart?days=${days}`
+    );
+    return response.data;
   } catch (error) {
     console.error("Error fetching watchlist", error);
     throw error;

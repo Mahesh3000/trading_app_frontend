@@ -31,7 +31,7 @@ const Header = () => {
         gutterBottom
         textAlign="center"
       >
-        Master Stock Trading Without Risk
+        Master Crypto Trading Without Risk
       </Typography>
 
       {/* Explanation */}
@@ -42,8 +42,9 @@ const Header = () => {
         textAlign="center"
         sx={{ maxWidth: 600 }}
       >
-        Track your stocks, manage your watchlist, and monitor holdings in one
-        place. Get insights and stay updated with market trends effortlessly.
+        Track your cryptocurrencies, manage your portfolio, and monitor holdings
+        in one place. Stay updated with market trends and gain valuable insights
+        effortlessly.
       </Typography>
 
       {/* Action Buttons */}

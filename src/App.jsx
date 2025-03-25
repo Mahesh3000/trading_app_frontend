@@ -9,7 +9,7 @@ import Sidebar from "./components/SideBar";
 import SignIn from "./pages/SignIn";
 import Dashboard from "./pages/Dashboard";
 import SignUp from "./pages/SignUp";
-import Watchlist from "./pages/Watchlist";
+import Watchlist from "./pages/WatchList";
 import Holdings from "./pages/Holdings";
 import Profile from "./pages/Profile";
 import StockDetails from "./pages/StockDetails";
@@ -49,7 +49,7 @@ function App() {
                       path="/profile"
                       element={<ProtectedRoute element={<Profile />} />}
                     />
-                    <Route path="/stock/:symbol" element={<StockDetails />} />
+                    <Route path="/coin/:symbol" element={<StockDetails />} />
                   </Routes>
                 </main>
               </div>
