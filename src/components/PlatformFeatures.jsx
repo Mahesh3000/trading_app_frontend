@@ -23,32 +23,37 @@ import { useNavigate } from "react-router-dom";
 const features = [
   {
     label: "Virtual Portfolio",
-    description: "Start with ₹10,00,000 virtual money to practice trading",
+    description:
+      "Start with virtual crypto funds to practice trading in the crypto market.",
     icon: <AccessTime />,
   },
   {
     label: "Real-Time Data",
-    description: "Access live market data and real-time stock prices",
+    description: "Access live crypto market data and real-time coin prices.",
     icon: <DataUsage />,
   },
   {
     label: "Performance Analytics",
-    description: "Track your trading performance with detailed analytics",
+    description:
+      "Track your crypto trading performance with detailed analytics and insights.",
     icon: <TrendingUp />,
   },
   {
     label: "Learning Resources",
-    description: "Access educational content to improve your trading skills",
+    description:
+      "Access educational content to improve your understanding of the crypto market.",
     icon: <School />,
   },
   {
     label: "Watchlist",
-    description: "Monitor your favorite stocks in one place",
+    description:
+      "Monitor your favorite cryptocurrencies in one place, track their performance.",
     icon: <WatchLater />,
   },
   {
     label: "Risk-Free Practice",
-    description: "Learn and experiment without financial risk",
+    description:
+      "Learn and experiment with cryptocurrencies without any financial risk.",
     icon: <Shield />,
   },
 ];

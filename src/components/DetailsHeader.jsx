@@ -8,17 +8,16 @@ import {
   Card,
   CardContent,
 } from "@mui/material";
+import StarIcon from "@mui/icons-material/Star";
 import StarBorderIcon from "@mui/icons-material/StarBorder";
 import TradeModal from "../components/TradeModal"; // Import the TradeModal component
 
 const DetailsHeader = ({
-  stockDatas,
   symbol,
   coinData,
   handleAddToWatchlist,
+  starIcon,
 }) => {
-  console.log("coinData", coinData?.market_data?.current_price?.usd);
-
   const last_price = coinData?.market_data?.current_price?.usd;
   const change_price = coinData?.market_data?.ath_change_percentage?.usd;
   const low_price = coinData?.market_data?.low_24h?.usd;
@@ -33,10 +32,11 @@ const DetailsHeader = ({
         {coinData?.symbol.toUpperCase()}
       </Typography>
       <Box sx={{ display: "flex", justifyContent: "flex-end", mb: 3 }}>
-        <TradeModal /> {/* Render the TradeModal component here */}
+        <TradeModal coinData={coinData} />{" "}
+        {/* Render the TradeModal component here */}
         <Button
           variant="outlined"
-          startIcon={<StarBorderIcon />}
+          startIcon={starIcon ? <StarIcon /> : <StarBorderIcon />}
           sx={{ ml: 2 }}
           onClick={handleAddToWatchlist}
         >
@@ -51,9 +51,7 @@ const DetailsHeader = ({
                 Last Price
               </Typography>
               <Typography variant="h6" fontWeight="bold">
-                {/* ₹{stockDatas?.lastPrice} */}
-                {/* {coinData?.market_data?.current_price?.usd} */}
-                {last_price}
+                $ {last_price}
               </Typography>
             </CardContent>
           </Card>
@@ -84,8 +82,7 @@ const DetailsHeader = ({
                 Low
               </Typography>
               <Typography variant="h6" fontWeight="bold">
-                {/* ₹{stockDatas?.open} */}
-                {low_price}
+                $ {low_price}
               </Typography>
             </CardContent>
           </Card>
@@ -98,8 +95,7 @@ const DetailsHeader = ({
                 High
               </Typography>
               <Typography variant="h6" fontWeight="bold">
-                {/* ₹{stockDatas?.previousClose} */}
-                {hign_price}
+                $ {hign_price}
               </Typography>
             </CardContent>
           </Card>

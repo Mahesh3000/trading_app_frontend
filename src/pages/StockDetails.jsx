@@ -1,251 +1,194 @@
 import React, { useState, useEffect } from "react";
-import {
-  Typography,
-  Card,
-  CardContent,
-  Box,
-  Button,
-  Grid,
-} from "@mui/material";
-
-import StarBorderIcon from "@mui/icons-material/StarBorder";
-import { useParams } from "react-router-dom";
+import { Typography, Box, Button, Grid } from "@mui/material";
+import { useNavigate, useParams } from "react-router-dom";
 import { useStock } from "../context/StockContext";
-import TradeModal from "../components/TradeModal"; // Import the TradeModal component
 import useUserSession from "../hooks/useAuth";
 import { addWatchlist, getChartCoinData, getCoinData } from "../services/apis";
 import DetailsHeader from "../components/DetailsHeader";
 import DetailsMarketStatus from "../components/DetailsMarketStatus";
 import DetailsChart from "../components/DetailsChart";
+import { useSnackbar } from "../context/SnackbarProvider";
+
+const getDaysForRange = (range) => {
+  switch (range) {
+    case "1D":
+      return 1; // Last 24 hours
+    case "1W":
+      return 7; // Last 7 days
+    case "1M":
+      return 30; // Last 30 days
+    case "3M":
+      return 90; // Last 3 months
+    case "6M":
+      return 180; // Last 6 months
+    case "YTD":
+      return 365; // Year to Date (same as 1 year)
+    case "1Y":
+      return 365; // Last 1 year
+    default:
+      return 1; // Default to 1 day if range is unknown
+  }
+};
 
 const StockDetail = () => {
-  const { symbol } = useParams();
-  const { stockDatas } = useStock(); // Access the stock data from context
-  console.log("stockDatas", stockDatas);
-  const { user } = useUserSession(); // Get user from session
+  const navigate = useNavigate(); // Get the navigate function
 
-  const [stockData, setStockData] = useState(null);
+  const { symbol } = useParams();
+  const { user } = useUserSession();
+  const { showSnackbar } = useSnackbar(); // Use Snackbar Context
+
   const [loading, setLoading] = useState(true);
   const [selectedMetric, setSelectedMetric] = useState("price");
   const [selectedRange, setSelectedRange] = useState("1D");
   const [coinData, setCoinData] = useState({});
   const [chartData, setChartData] = useState({});
-  console.log("symbol", symbol);
-
-  useEffect(() => {
-    const fetchData = async () => {
-      if (!symbol) return;
-
-      try {
-        // Check if coin data is already fetched
-        if (coinData?.id === symbol) {
-          return; // Avoid fetching data if already fetched
-        }
-
-        const responseCoinData = await getCoinData(symbol);
-        console.log("CoinData:", responseCoinData);
+  const [noData, setNoData] = useState(false); // New state to track no data
+  const [starIcon, setStarIcon] = useState(false);
+  // Function to fetch the data
+  const fetchCoinData = async () => {
+    if (!symbol) return;
+    try {
+      // Fetch coin data
+      const responseCoinData = await getCoinData(symbol);
+      if (responseCoinData && Object.keys(responseCoinData).length > 0) {
         setCoinData(responseCoinData);
-
-        const chart = await getChartCoinData(symbol, 30);
-        // console.log("ChartData:", chart);
-        setChartData(chart);
-        setLoading(false); // Set loading to false after data is fetched
-      } catch (error) {
-        console.error("Error fetching coin data:", error);
+        setNoData(false); // Reset noData state
+      } else {
+        setNoData(true); // Set noData to true if no data
       }
-    };
-
-    fetchData();
-  }, [symbol]); // Only rerun when `symbol` changes
-
-  const marketStats = {
-    dayRange: "₹399.80 - ₹386.15",
-    volume: "3,72,355",
-    faceValue: "₹2",
+      setLoading(false);
+    } catch (error) {
+      console.error("Error fetching coin data:", error);
+      setLoading(false);
+      setNoData(true); // Set noData to true on error
+    }
   };
 
+  const fetchChartData = async (range) => {
+    if (!symbol) return;
+    try {
+      const days = getDaysForRange(range); // Convert range to days
+      const chart = await getChartCoinData(symbol, days); // Pass days instead of range
+      if (chart && Object.keys(chart).length > 0) {
+        setChartData(chart);
+        setNoData(false); // Reset noData state
+      } else {
+        setNoData(true); // Set noData to true if no data
+      }
+    } catch (error) {
+      console.error("Error fetching chart data:", error);
+      setNoData(true); // Set noData to true on error
+    }
+  };
+
+  // On initial load, fetch coin data and chart data for "1D" range
+  useEffect(() => {
+    fetchCoinData(); // Fetch coin data on initial load
+    fetchChartData("1D"); // Fetch 1D chart data on initial load
+  }, []);
+
+  // Update chart data when range changes
+  const handleRangeChange = (range) => {
+    setSelectedRange(range);
+    fetchChartData(range); // Call the function to fetch chart data for the selected range
+  };
+
+  // Handle adding stock to watchlist
   const handleAddToWatchlist = async () => {
-    console.log("watch list added");
     if (!user?.id) {
-      console.error("User ID is undefined");
+      navigate("/signin"); // Redirect user to sign-in page
       return;
     }
-    try {
-      console.log(user?.id);
 
-      const response = await addWatchlist(
+    try {
+      await addWatchlist(
         user.id,
-        stockDatas?.symbol,
-        stockDatas?.name
+        coinData?.symbol,
+        coinData?.name,
+        coinData?.id
       );
-      console.log("response", response);
+      setStarIcon(true);
+      showSnackbar("Successfully Added to Watchlist!", "success"); // Show Snackbar
     } catch (error) {
-      console.error("Error adding funds:", error);
+      console.error("Error adding to watchlist:", error);
     }
   };
 
   return (
     <Box sx={{ maxWidth: "1400px", margin: "auto", mt: 5 }}>
       {loading ? (
-        <div>
-          <h1>loading</h1>
-        </div>
+        <Typography variant="h5">Loading...</Typography>
+      ) : noData ? ( // Check if noData is true
+        <Typography variant="h6" sx={{ textAlign: "center", mt: 5 }}>
+          We are not having data for this coin.
+        </Typography>
       ) : (
         <>
           <DetailsHeader
-            // stockDatas={stockDatas}
             symbol={symbol}
             coinData={coinData}
             handleAddToWatchlist={handleAddToWatchlist}
+            starIcon={starIcon}
           />
-          <DetailsChart chartData={chartData} />
-          <DetailsMarketStatus marketStats={marketStats} />
+
+          {/* Metric & Time Range Selection */}
+          <Box sx={{ display: "flex", justifyContent: "flex-start", mb: 2 }}>
+            <Box>
+              {["Price", "Volume", "Market Cap"].map((metric) => (
+                <Button
+                  key={metric}
+                  variant={
+                    selectedMetric === metric.toLowerCase()
+                      ? "contained"
+                      : "outlined"
+                  }
+                  onClick={() => setSelectedMetric(metric.toLowerCase())}
+                  sx={{ mr: 1 }}
+                >
+                  {metric}
+                </Button>
+              ))}
+            </Box>
+            <Box sx={{ ml: 6 }}>
+              {["1D", "1W", "1M", "3M", "6M", "YTD", "1Y"].map((range) => (
+                <Button
+                  key={range}
+                  variant={selectedRange === range ? "contained" : "outlined"}
+                  onClick={() => handleRangeChange(range)} // Use the new function for range change
+                  sx={{ ml: 1 }}
+                >
+                  {range}
+                </Button>
+              ))}
+            </Box>
+          </Box>
+
+          {/* Chart & Metrics */}
+          <Grid container spacing={3}>
+            <Grid item xs={12} md={8}>
+              <Box
+                sx={{
+                  height: 400,
+                  border: "1px solid #e0e0e0",
+                  borderRadius: "8px",
+                  p: 2,
+                }}
+              >
+                <DetailsChart
+                  chartData={chartData}
+                  selectedRange={selectedRange}
+                  selectedMetric={selectedMetric}
+                />
+              </Box>
+            </Grid>
+            <Grid item xs={12} md={4}>
+              <DetailsMarketStatus coinData={coinData} />
+            </Grid>
+          </Grid>
         </>
       )}
-
-      {/* Time Range and Metric Buttons */}
     </Box>
   );
 };
 
 export default StockDetail;
-
-// useEffect(() => {
-//   fetchStockData(selectedRange);
-// }, [symbol, selectedRange]);
-
-// if (loading) {
-//   return <div>Loading...</div>;
-// }
-
-// Extract the appropriate time series data based on the selected range
-// let timeSeries = {};
-// if (selectedRange === "1D" && stockData["Time Series (Daily)"]) {
-//   timeSeries = stockData["Time Series (Daily)"];
-// } else if (selectedRange === "1W" && stockData["Weekly Time Series"]) {
-//   timeSeries = stockData["Weekly Time Series"];
-// } else if (selectedRange === "1M" && stockData["Monthly Time Series"]) {
-//   timeSeries = stockData["Monthly Time Series"];
-// }
-
-// // If no valid time series data, return an error message
-// if (Object.keys(timeSeries).length === 0) {
-//   return <div>Loading</div>;
-// }
-
-// Format date to "DD MMM" (e.g., "10 Mar")
-// const formatDate = (timestamp) => {
-//   const dateObj = new Date(timestamp);
-//   return `${dateObj.getDate()} ${dateObj.toLocaleString("en-US", {
-//     month: "short",
-//   })}`;
-// };
-
-// const labels = Object.keys(timeSeries)
-//   .map((time) => formatDate(time))
-//   .reverse();
-
-// const closePrices = Object.keys(timeSeries)
-//   .map((time) => timeSeries[time]["4. close"] || timeSeries[time]["close"])
-//   .reverse();
-
-// const volumeData = Object.keys(timeSeries)
-//   .map((time) => timeSeries[time]["5. volume"] || 0)
-//   .reverse();
-
-// const chartData = {
-//   labels,
-//   datasets: [
-//     {
-//       label:
-//         selectedMetric === "price"
-//           ? `${symbol} Close Price`
-//           : selectedMetric === "volume"
-//           ? `${symbol} Volume`
-//           : "Price & Volume",
-//       data: selectedMetric === "price" ? closePrices : volumeData,
-//       borderColor: "rgba(75, 192, 192, 1)",
-//       backgroundColor:
-//         selectedMetric === "price"
-//           ? "rgba(75, 192, 192, 0.2)"
-//           : "transparent",
-//       fill: selectedMetric === "price", // Only fill for price
-//     },
-//   ],
-// };
-
-// const chartOptions = {
-//   responsive: true,
-//   plugins: {
-//     legend: {
-//       display: false, // Hide legend
-//     },
-//     title: {
-//       display: false, // Hide title
-//     },
-//     filler: {
-//       propagate: false,
-//     },
-//   },
-//   scales: {
-//     x: {
-//       grid: {
-//         display: false, // Hide x-axis grid lines
-//       },
-//     },
-//     y: {
-//       grid: {
-//         display: true, // Show y-axis grid lines
-//       },
-//     },
-//   },
-//   elements: {
-//     line: {
-//       fill: true, // Fill the area under the line
-//       backgroundColor: "rgba(136, 132, 216, 0.3)", // Shaded area color
-//       borderColor: "#8884d8", // Line color
-//       tension: 0.4, // Adjust line curve
-//     },
-//   },
-// };
-// Helper function to fetch stock data based on time range
-// const fetchStockData = async (range) => {
-//   let apiUrl = "";
-//   switch (range) {
-//     case "1D":
-//       apiUrl = `https://www.alphavantage.co/query?function=TIME_SERIES_DAILY&symbol=${stockDatas?.symbol}&apikey=261CEM7OEOAFAZ0I`;
-//       break;
-//     case "1W":
-//       apiUrl = `https://www.alphavantage.co/query?function=TIME_SERIES_WEEKLY&symbol=${stockDatas?.symbol}&apikey=261CEM7OEOAFAZ0I`;
-//       break;
-//     case "1M":
-//       apiUrl = `https://www.alphavantage.co/query?function=TIME_SERIES_MONTHLY&symbol=${stockDatas?.symbol}&apikey=261CEM7OEOAFAZ0I`;
-//       break;
-//     default:
-//       break;
-//   }
-
-// const fetchStockData = async (range) => {
-// let apiUrl = "";
-// switch (range) {
-//   case "1D":
-//     apiUrl = `  https://www.alphavantage.co/query?function=TIME_SERIES_DAILY&symbol=IBM&apikey=demo`;
-//     break;
-//   case "1W":
-//     apiUrl = `  https://www.alphavantage.co/query?function=TIME_SERIES_DAILY&symbol=IBM&apikey=demo`;
-//     break;
-//   case "1M":
-//     apiUrl = `  https://www.alphavantage.co/query?function=TIME_SERIES_DAILY&symbol=IBM&apikey=demo`;
-//     break;
-//   default:
-//     break;
-// }
-// try {
-//   const response = await fetch(apiUrl);
-//   const data = await response.json();
-//   setStockData(data);
-//   setLoading(false);
-// } catch (error) {
-//   console.error("Error fetching stock data:", error);
-// }
-// };

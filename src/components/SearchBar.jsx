@@ -14,13 +14,13 @@ const SearchBar = ({ searchTerm, setSearchTerm, loading, suggestions }) => {
   return (
     <Box sx={{ mb: 4 }}>
       <Autocomplete
-        value={
-          suggestions?.find(
-            (suggestion) =>
-              suggestion?.symbol === searchTerm ||
-              suggestion?.name === searchTerm
-          ) || null
-        }
+        // value={
+        //   suggestions?.find(
+        //     (suggestion) =>
+        //       suggestion?.symbol === searchTerm ||
+        //       suggestion?.name === searchTerm
+        //   ) || null
+        // }
         onChange={(event, newValue) => {
           handleSelect(newValue);
           setSearchTerm(newValue ? newValue.symbol : "");

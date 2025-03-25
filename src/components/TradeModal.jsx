@@ -10,20 +10,34 @@ import {
   TextField,
   Grid,
 } from "@mui/material";
+import { tradeCoin } from "../services/apis";
+import useUserSession from "../hooks/useAuth";
+import { useSnackbar } from "../context/SnackbarProvider";
+import { useNavigate } from "react-router-dom";
 
-const TradeModal = () => {
+const TradeModal = ({ coinData }) => {
+  const navigate = useNavigate();
+  const { user } = useUserSession();
+  const { showSnackbar } = useSnackbar(); // Use Snackbar Context
+
   const [isTradeModalOpen, setIsTradeModalOpen] = useState(false);
   const [tradeType, setTradeType] = useState("buy");
   const [quantity, setQuantity] = useState("");
-  const currentPrice = 68.89; // Replace with actual current price
+  const currentPrice = coinData?.market_data?.current_price?.usd; // Replace with actual current price
   const [totalValue, setTotalValue] = useState(0);
 
   const handleOpenTradeModal = () => {
+    if (!user?.id) {
+      navigate("/signin"); // Redirect user to sign-in page
+      return;
+    }
     setIsTradeModalOpen(true);
   };
 
   const handleCloseTradeModal = () => {
     setIsTradeModalOpen(false);
+    setQuantity("");
+    setTotalValue(0);
   };
 
   const handleTradeTypeChange = (event) => {
@@ -36,9 +50,22 @@ const TradeModal = () => {
     setTotalValue(qty * currentPrice);
   };
 
-  const handleBuyClick = () => {
+  const handleTradeClick = async () => {
     // Implement your trade logic here
-    console.log("Trade:", tradeType, quantity, totalValue);
+    if (!user?.id) {
+      navigate("/signin"); // Redirect user to sign-in page
+      return;
+    }
+
+    await tradeCoin(coinData?.id, user?.id, tradeType, quantity, currentPrice);
+
+    showSnackbar(
+      `Successfully ${tradeType === "buy" ? "bought" : "sold"} ${quantity} ${
+        coinData?.id
+      }!`,
+      "success"
+    ); // Show Snackbar
+
     handleCloseTradeModal();
   };
 
@@ -77,7 +104,7 @@ const TradeModal = () => {
               }}
             >
               <Typography id="trade-modal-title" variant="h6" component="h2">
-                Trade AAATECH
+                Trade {coinData?.name}
               </Typography>
               <Button onClick={handleCloseTradeModal}>X</Button>
             </Grid>
@@ -107,7 +134,9 @@ const TradeModal = () => {
               }}
             >
               <Typography>Current Price</Typography>
-              <Typography>₹{currentPrice.toFixed(2)}</Typography>
+              <Typography>
+                ${coinData?.market_data?.current_price?.usd}
+              </Typography>
             </Grid>
             <Grid item xs={12}>
               <TextField
@@ -128,11 +157,24 @@ const TradeModal = () => {
               }}
             >
               <Typography>Total Value</Typography>
-              <Typography>₹{totalValue.toFixed(2)}</Typography>
+              <Typography>${totalValue.toFixed(2)}</Typography>
             </Grid>
             <Grid item xs={12}>
-              <Button variant="contained" fullWidth onClick={handleBuyClick}>
-                Buy AAATECH
+              <Button
+                variant="contained"
+                fullWidth
+                onClick={handleTradeClick}
+                sx={{
+                  backgroundColor: tradeType === "buy" ? "green" : "red",
+                  "&:hover": {
+                    backgroundColor:
+                      tradeType === "buy" ? "darkgreen" : "darkred",
+                  },
+                }}
+              >
+                {tradeType === "buy"
+                  ? `Buy ${coinData?.name}`
+                  : `Sell ${coinData?.name}`}
               </Button>
             </Grid>
           </Grid>

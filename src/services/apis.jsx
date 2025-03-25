@@ -16,6 +16,21 @@ export const fetchCoins = async (searchTerm) => {
     throw error; // Re-throw the error after logging it
   }
 };
+export const loginUser = async (formData) => {
+  try {
+    const response = await axios.post(config.LOGIN_URL, {
+      email: formData.email,
+      password: formData.password,
+    });
+    return response.data; // Return the user data from the response
+  } catch (error) {
+    console.error(
+      "Error in signupUser:",
+      error.response?.data || error.message
+    );
+    throw error.response?.data || error; // Re-throw the error for UI handling
+  }
+};
 
 export const signupUser = async (formData) => {
   try {
@@ -64,12 +79,13 @@ export const addFunds = async (userId, amount) => {
   }
 };
 
-export const addWatchlist = async (userId, symbol, companyName) => {
+export const addWatchlist = async (userId, symbol, companyName, coinId) => {
   try {
     const response = await axios.post(`${config.ADD_WATCHLIST_URL}`, {
       userId,
       symbol,
       companyName,
+      coinId,
     });
 
     return response.data; // Returning the response data
@@ -86,6 +102,19 @@ export const getWatchlist = async (userId) => {
   } catch (error) {
     console.error("Error fetching watchlist", error);
     throw error;
+  }
+};
+
+export const deleteFromWatchlist = async (userId, coinId) => {
+  try {
+    // Construct the DELETE URL with userId and coinId
+    const response = await axios.delete(config.DELETE_WATCHLIST_URL, {
+      data: { userId, coinId }, // Using 'data' to pass the body content
+    });
+    return response; // Return the response from the backend
+  } catch (error) {
+    console.error("Error deleting from watchlist", error);
+    throw error; // Propagate error to handle it further up the call stack
   }
 };
 
@@ -107,6 +136,43 @@ export const getChartCoinData = async (userId, days) => {
     return response.data;
   } catch (error) {
     console.error("Error fetching watchlist", error);
+    throw error;
+  }
+};
+
+export const tradeCoin = async (
+  coinId,
+  userId,
+  tradeType,
+  quantity,
+  priceUsd
+) => {
+  try {
+    const response = await axios.post(`${config.TRADE_URL}`, {
+      coinId,
+      userId,
+      tradeType,
+      quantity,
+      priceUsd,
+    });
+
+    return response.data; // Returning the response data
+  } catch (error) {
+    console.error("Error trading coin:", error.response?.data || error.message);
+    throw error;
+  }
+};
+
+export const getHoldings = async (userId) => {
+  console.log("userId in  controllers", userId);
+
+  try {
+    const response = await axios.get(`${config.GET_HOLDINGS}`, {
+      params: { userId }, // Properly passing userId as a query parameter
+    });
+    return response.data.holdings;
+  } catch (error) {
+    console.error("Error fetching holdings", error);
     throw error;
   }
 };

@@ -41,21 +41,25 @@ const Dashboard = () => {
   const [filteredCoins, setFilteredCoins] = useState([]); // Storing filtered coins
 
   useEffect(() => {
-    // If the search term is empty, clear the filteredCoins state
     if (searchTerm.trim() === "") {
-      setFilteredCoins([]); // Clear filtered coins if no search term
+      setFilteredCoins([]);
       return;
     }
 
-    // Filter coins based on the search term
-    const filtered = topCoins.filter(
-      (coin) =>
-        coin.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        coin.symbol.toLowerCase().includes(searchTerm.toLowerCase())
-    );
+    const fetchData = async () => {
+      setLoading(true); // Set loading to true while fetching
+      try {
+        const response = await fetchCoins(searchTerm); // API call to fetch data
+        setFilteredCoins(response); // Set the response data to filteredCoins
+      } catch (error) {
+        console.error("Error fetching coin data:", error); // Handle any errors
+      } finally {
+        setLoading(false); // Set loading to false once the API call is complete
+      }
+    };
 
-    setFilteredCoins(filtered); // Update the filteredCoins state with the filtered data
-  }, [searchTerm]); // This effect will run whenever the search term changes
+    fetchData(); // Call the API whenever searchTerm changes
+  }, [searchTerm]); // This will trigger whenever the search term changes
 
   return (
     <Container maxWidth="md" sx={{ mt: 4 }}>
@@ -75,62 +79,3 @@ const Dashboard = () => {
 };
 
 export default Dashboard;
-
-// Fetch coin data on initial load and whenever search term changes
-// useEffect(() => {
-//   const getCoinData = async () => {
-//     if (searchTerm.trim() === "") {
-//       return; // Prevent API call if search term is empty
-//     }
-//     setLoading(true); // Set loading to true during the fetch
-//     try {
-//       console.log("searchTerm", searchTerm);
-
-//       const response = await fetchCoins(searchTerm); // Fetching data from the API
-//       setCoinData(response); // Store the fetched coin data
-//       setFilteredCoins(response); // Set the initial filtered coins as the full list
-//     } catch (error) {
-//       console.error("Error fetching coin data:", error); // Handle any errors
-//     } finally {
-//       setLoading(false); // Set loading to false once the API call is complete
-//     }
-//   };
-
-//   // Call the API when the component mounts or when search term changes
-//   if (searchTerm === "") {
-//     setFilteredCoins(coinData); // Show all coins if search term is empty
-//   } else {
-//     // Filter coins based on the search term
-//     const filtered = coinData.filter(
-//       (coin) =>
-//         coin.symbol.toLowerCase().includes(searchTerm.toLowerCase()) ||
-//         coin.name.toLowerCase().includes(searchTerm.toLowerCase())
-//     );
-//     setFilteredCoins(filtered); // Update filtered coins
-//   }
-
-//   getCoinData(); // Call the API whenever search term changes
-// }, [searchTerm]); // This will run whenever the search term changes
-
-// console.log("searchTerm", searchTerm);
-// useEffect(() => {
-//   // Only run the search API if there's a valid search term
-//   if (searchTerm.trim() === "") {
-//     setFilteredCoins([]); // Clear results if search term is empty
-//     return;
-//   }
-
-//   const fetchData = async () => {
-//     setLoading(true); // Set loading to true while fetching
-//     try {
-//       const response = await fetchCoins(searchTerm); // API call to fetch data
-//       setFilteredCoins(response); // Set the response data to filteredCoins
-//     } catch (error) {
-//       console.error("Error fetching coin data:", error); // Handle any errors
-//     } finally {
-//       setLoading(false); // Set loading to false once the API call is complete
-//     }
-//   };
-
-//   fetchData(); // Call the API whenever searchTerm changes
-// }, [searchTerm]); // This will trigger whenever the search term changes

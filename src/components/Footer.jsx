@@ -35,7 +35,7 @@ const Footer = () => {
           </Typography>
           <Typography variant="body2">
             <Link
-              href="https://www.linkedin.com/in/maheshsivangi/"
+              href="/aboutme"
               color="inherit"
               sx={{ display: "block", marginBottom: "8px" }}
             >

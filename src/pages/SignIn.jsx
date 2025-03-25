@@ -11,11 +11,14 @@ import {
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
 import { useSnackbar } from "../context/SnackbarProvider";
+import { loginUser } from "../services/apis";
+import useUserSession from "../hooks/useAuth";
 
 const SignIn = () => {
   const navigate = useNavigate();
   const { login } = useAuth();
   const { showSnackbar } = useSnackbar(); // Use Snackbar Context
+  const { saveAuthData } = useUserSession(); // Use the custom hook
 
   const [formData, setFormData] = useState({ email: "", password: "" });
 
@@ -23,16 +26,34 @@ const SignIn = () => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    console.log("Logging in with:", formData);
-    // Implement login logic here
-    login();
 
-    showSnackbar("Successfully signed in!", "success"); // Show Snackbar
+    // Validate the form data (username/email and password)
+    if (!formData.email || !formData.password) {
+      console.log("Please fill in both fields.");
+      return;
+    }
 
-    // setTimeout(() => navigate("/"), 1500); // Redirect after a delay
-    navigate("/");
+    try {
+      const response = await loginUser(formData);
+
+      if (response?.token) {
+        const { token, user } = response;
+
+        login();
+        saveAuthData(user, token);
+
+        showSnackbar("Successfully signed in!", "success");
+
+        navigate("/");
+      } else {
+        console.log("Invalid login credentials");
+      }
+    } catch (error) {
+      console.error("Error logging in:", error.response?.data || error.message);
+      showSnackbar("Login failed. Please try again.", "error"); // Show error message
+    }
   };
 
   return (
