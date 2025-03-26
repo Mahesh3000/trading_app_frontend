@@ -98,7 +98,7 @@ export const addWatchlist = async (userId, symbol, companyName, coinId) => {
 export const getWatchlist = async (userId) => {
   try {
     const response = await axios.get(`${config.GET_WATCHLIST_URL}/${userId}`);
-    return response.data.watchlist; // Return the watchlist from response
+    return response.data.updatedWatchlist; // Return the watchlist from response
   } catch (error) {
     console.error("Error fetching watchlist", error);
     throw error;

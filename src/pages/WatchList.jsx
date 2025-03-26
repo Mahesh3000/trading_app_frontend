@@ -17,7 +17,6 @@ const Watchlist = () => {
 
   useEffect(() => {
     if (!user?.id) {
-      console.error("User ID is undefined");
       return;
     }
 
@@ -45,11 +44,7 @@ const Watchlist = () => {
 
   const handleDelete = async (coinID) => {
     try {
-      // Make an API call to delete the stock from watchlist
       await deleteFromWatchlist(user?.id, coinID);
-
-      // Remove from local state (watchlist)
-
       setWatchlist(
         (prevWatchlist) =>
           prevWatchlist.filter((stock) => stock.coin_id !== coinID) // Use coin_id
@@ -126,26 +121,36 @@ const Watchlist = () => {
               }}
             >
               <Box>
-                <Typography variant="subtitle1">{stock.symbol}</Typography>
-                <Typography variant="body2">{stock.company_name}</Typography>
+                <Typography variant="h5" fontWeight="bold">
+                  {stock.symbol}
+                </Typography>
+                <Typography variant="body2" fontWeight="bold">
+                  {stock.company_name}
+                </Typography>
               </Box>
               <Box sx={{ display: "flex", alignItems: "center" }}>
-                <Typography variant="body1" sx={{ marginRight: "10px" }}>
-                  {stock.price}
+                <Typography
+                  variant="h6"
+                  fontWeight="bold"
+                  sx={{ marginRight: "10px" }}
+                >
+                  {stock.current_price}
                 </Typography>
                 <Typography
-                  variant="body2"
-                  sx={{
-                    color: stock.changeType === "increase" ? "green" : "red",
-                    marginRight: "10px",
-                  }}
+                  variant="h6"
+                  fontWeight="bold"
+                  sx={{ marginRight: "10px", ml: 3 }}
+                  color={
+                    stock.change_percent > 0 ? "success.main" : "error.main"
+                  }
                 >
-                  {stock.change}
+                  {stock.change_percent > 0 ? "↑" : "↓"}{" "}
+                  {stock?.change_percent?.toFixed(2)}%
                 </Typography>
                 <Button
                   variant="text"
                   size="small"
-                  sx={{ marginRight: "10px" }}
+                  sx={{ marginRight: "10px", ml: 3 }}
                   onClick={() => handleViewDetails(stock.coin_id)}
                 >
                   View Details
