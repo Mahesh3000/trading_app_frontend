@@ -69,7 +69,6 @@ const DetailsHeader = ({
                 color={change_price > 0 ? "success.main" : "error.main"}
               >
                 {change_price > 0 ? "↑" : "↓"} {change_price}%
-                {/* {change_price} */}
               </Typography>
             </CardContent>
           </Card>

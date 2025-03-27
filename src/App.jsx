@@ -70,15 +70,4 @@ function App() {
   );
 }
 
-// const AppWithLoading = () => {
-//   const { loading } = useLoading(); // Access the loading state from the context
-
-//   return (
-//     <>
-//       {loading && <LoadingScreen />}{" "}
-//       {/* Show loading screen if loading is true */}
-//     </>
-//   );
-// };
-
 export default App;
