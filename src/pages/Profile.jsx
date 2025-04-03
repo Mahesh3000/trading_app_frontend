@@ -21,10 +21,12 @@ import AddFundsModal from "../components/AddFundsModal";
 import { addFunds, getHoldings, getProfile } from "../services/apis";
 import useUserSession from "../hooks/useAuth";
 import LoadingScreen from "../components/LoadingScreen";
+import { useSnackbar } from "../context/SnackbarProvider";
 
 const Profile = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const { user } = useUserSession(); // Get user from session
+  const { showSnackbar } = useSnackbar(); // Use Snackbar Context
 
   const [profile, setProfile] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -49,6 +51,10 @@ const Profile = () => {
     try {
       const response = await addFunds(user.id, amount);
       setProfile(response?.user);
+      showSnackbar(
+        `"Successfully added ${amount} $ to your account!`,
+        "success"
+      );
     } catch (error) {
       console.error("Error adding funds:", error);
     }

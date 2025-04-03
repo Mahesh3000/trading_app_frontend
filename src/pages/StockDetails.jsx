@@ -134,7 +134,7 @@ const StockDetail = () => {
           {/* Metric & Time Range Selection */}
           <Box sx={{ display: "flex", justifyContent: "flex-start", mb: 2 }}>
             <Box>
-              {["Price", "Volume", "Market Cap"].map((metric) => (
+              {["Price", "Market Cap", "Trading View"].map((metric) => (
                 <Button
                   key={metric}
                   variant={
