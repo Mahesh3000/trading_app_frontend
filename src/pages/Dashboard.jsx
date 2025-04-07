@@ -46,20 +46,20 @@ const Dashboard = () => {
       return;
     }
 
-    const fetchData = async () => {
-      setLoading(true); // Set loading to true while fetching
+    setLoading(true);
+    const timer = setTimeout(async () => {
       try {
-        const response = await fetchCoins(searchTerm); // API call to fetch data
-        setFilteredCoins(response); // Set the response data to filteredCoins
+        const response = await fetchCoins(searchTerm);
+        setFilteredCoins(response);
       } catch (error) {
-        console.error("Error fetching coin data:", error); // Handle any errors
+        console.error("Error fetching coin data:", error);
       } finally {
-        setLoading(false); // Set loading to false once the API call is complete
+        setLoading(false);
       }
-    };
+    }, 500); // Delay API call by 500ms
 
-    fetchData(); // Call the API whenever searchTerm changes
-  }, [searchTerm]); // This will trigger whenever the search term changes
+    return () => clearTimeout(timer); // Clear timeout on every keystroke
+  }, [searchTerm]);
 
   return (
     <Container maxWidth="md" sx={{ mt: 4 }}>

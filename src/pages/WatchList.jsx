@@ -56,7 +56,6 @@ const Watchlist = () => {
   };
 
   if (loading) {
-    // Display loader while the data is being fetched
     return <LoadingScreen />;
   }
 
@@ -78,8 +77,6 @@ const Watchlist = () => {
 
       {loading ? (
         <Typography>Loading watchlist...</Typography>
-      ) : error ? (
-        <Typography color="error">{error}</Typography>
       ) : watchlist.length === 0 ? (
         // Render this if the watchlist is empty
         <Box

@@ -1,29 +1,22 @@
 import React from "react";
-import { Box, CircularProgress, Typography } from "@mui/material";
+import { Box, CircularProgress, Skeleton } from "@mui/material";
 
 const LoadingScreen = () => {
   return (
     <Box
       sx={{
         display: "flex",
-        justifyContent: "center",
+        flexDirection: "column",
         alignItems: "center",
+        justifyContent: "center",
         height: "100vh",
-        backgroundColor: "rgba(0, 0, 0, 0.1)",
-        position: "fixed",
-        top: 0,
-        left: 0,
-        right: 0,
-        bottom: 0,
-        zIndex: 1000, // Make sure it stays on top
+        width: "100%",
+        gap: 2,
       }}
     >
-      <Box textAlign="center">
-        <CircularProgress color="primary" />
-        <Typography variant="h6" sx={{ marginTop: 2 }}>
-          Loading...
-        </Typography>
-      </Box>
+      <CircularProgress size={50} />
+      <Skeleton variant="text" width={200} height={30} />
+      <Skeleton variant="rectangular" width="80%" height={200} />
     </Box>
   );
 };

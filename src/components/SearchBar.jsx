@@ -11,16 +11,11 @@ const SearchBar = ({ searchTerm, setSearchTerm, loading, suggestions }) => {
     }
   };
 
+  console.log("loading in search", loading);
+
   return (
     <Box sx={{ mb: 4 }}>
       <Autocomplete
-        // value={
-        //   suggestions?.find(
-        //     (suggestion) =>
-        //       suggestion?.symbol === searchTerm ||
-        //       suggestion?.name === searchTerm
-        //   ) || null
-        // }
         onChange={(event, newValue) => {
           handleSelect(newValue);
           setSearchTerm(newValue ? newValue.symbol : "");
@@ -49,9 +44,12 @@ const SearchBar = ({ searchTerm, setSearchTerm, loading, suggestions }) => {
             }}
           />
         )}
+        noOptionsText={loading ? "Loading..." : "No results"} // Show loading when it's in progress
       />
       {loading && (
-        <CircularProgress color="inherit" size={24} sx={{ marginLeft: 2 }} />
+        <Box sx={{ display: "flex", justifyContent: "center", mt: 2 }}>
+          <CircularProgress size={24} />
+        </Box>
       )}
     </Box>
   );

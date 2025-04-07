@@ -8,6 +8,7 @@ import DetailsHeader from "../components/DetailsHeader";
 import DetailsMarketStatus from "../components/DetailsMarketStatus";
 import DetailsChart from "../components/DetailsChart";
 import { useSnackbar } from "../context/SnackbarProvider";
+import LoadingScreen from "../components/LoadingScreen";
 
 const getDaysForRange = (range) => {
   switch (range) {
@@ -113,6 +114,10 @@ const StockDetail = () => {
       console.error("Error adding to watchlist:", error);
     }
   };
+
+  if (loading) {
+    return <LoadingScreen />;
+  }
 
   return (
     <Box sx={{ maxWidth: "1400px", margin: "auto", mt: 5 }}>
