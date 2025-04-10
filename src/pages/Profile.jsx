@@ -148,6 +148,14 @@ const Profile = () => {
     });
   };
 
+  const calculateProfitLossPercentage = (buyPrice, currentPrice, quantity) => {
+    const buyAmount = buyPrice * quantity;
+    const currentAmount = currentPrice * quantity;
+    const profitLossPercentage =
+      ((currentAmount - buyAmount) / buyAmount) * 100;
+    return profitLossPercentage;
+  };
+
   if (loading) {
     // Display loader while the data is being fetched
     return <LoadingScreen />;
@@ -274,39 +282,50 @@ const Profile = () => {
                         <TableCell>Quantity</TableCell>
                         <TableCell>Amount</TableCell>
                         <TableCell>Current Price</TableCell>
-                        <TableCell>24h Change %</TableCell>
+                        <TableCell>P/L %</TableCell>
                         <TableCell>Date</TableCell>
                       </TableRow>
                     </TableHead>
                     <TableBody>
                       {trades.length > 0 ? (
-                        trades.map((trade, index) => (
-                          <TableRow key={index}>
-                            <TableCell>{trade.coin_id}</TableCell>
-                            <TableCell>{trade.trade_type}</TableCell>
-                            <TableCell>
-                              {parseFloat(trade.quantity).toFixed(2)}
-                            </TableCell>
-                            <TableCell>
-                              ${parseFloat(trade.price_usd).toFixed(2)}
-                            </TableCell>
-                            <TableCell>
-                              ${parseFloat(trade.current_price).toFixed(2)}
-                            </TableCell>
-                            <TableCell
-                              sx={{
-                                color:
-                                  trade.change_percent >= 0 ? "green" : "red",
-                              }}
-                            >
-                              {/* {trade.change_percent >= 0 ? "+" : ""}{" "} */}
-                              {trade.change_percent.toFixed(2)}%
-                            </TableCell>
-                            <TableCell>
-                              {new Date(trade.trade_time).toLocaleDateString()}
-                            </TableCell>
-                          </TableRow>
-                        ))
+                        trades.map((trade, index) => {
+                          const profitLossPercentage =
+                            calculateProfitLossPercentage(
+                              parseFloat(trade.price_usd),
+                              parseFloat(trade.current_price),
+                              parseFloat(trade.quantity)
+                            );
+
+                          return (
+                            <TableRow key={index}>
+                              <TableCell>{trade.coin_id}</TableCell>
+                              <TableCell>{trade.trade_type}</TableCell>
+                              <TableCell>
+                                {parseFloat(trade.quantity).toFixed(2)}
+                              </TableCell>
+                              <TableCell>
+                                ${parseFloat(trade.price_usd).toFixed(2)}
+                              </TableCell>
+                              <TableCell>
+                                ${parseFloat(trade.current_price).toFixed(2)}
+                              </TableCell>
+                              <TableCell
+                                sx={{
+                                  color:
+                                    profitLossPercentage >= 0 ? "green" : "red",
+                                }}
+                              >
+                                {profitLossPercentage >= 0 ? "+" : ""}
+                                {profitLossPercentage.toFixed(2)}%
+                              </TableCell>
+                              <TableCell>
+                                {new Date(
+                                  trade.trade_time
+                                ).toLocaleDateString()}
+                              </TableCell>
+                            </TableRow>
+                          );
+                        })
                       ) : (
                         <TableRow>
                           <TableCell colSpan={6} align="center">
