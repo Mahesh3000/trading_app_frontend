@@ -143,7 +143,7 @@ export const tradeCoin = async (
   userId,
   tradeType,
   quantity,
-  priceUsd
+  coinSymbol
 ) => {
   try {
     const response = await axios.post(`${config.TRADE_URL}`, {
