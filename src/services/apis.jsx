@@ -143,6 +143,7 @@ export const tradeCoin = async (
   userId,
   tradeType,
   quantity,
+  priceUsd,
   coinSymbol
 ) => {
   try {
