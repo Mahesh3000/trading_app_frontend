@@ -299,7 +299,7 @@ const Profile = () => {
                                   trade.change_percent >= 0 ? "green" : "red",
                               }}
                             >
-                              {trade.change_percent >= 0 ? "+" : "-"}{" "}
+                              {/* {trade.change_percent >= 0 ? "+" : ""}{" "} */}
                               {trade.change_percent.toFixed(2)}%
                             </TableCell>
                             <TableCell>
