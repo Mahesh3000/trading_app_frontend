@@ -56,17 +56,41 @@ const TradeModal = ({ coinData }) => {
       navigate("/signin"); // Redirect user to sign-in page
       return;
     }
+    try {
+      await tradeCoin(
+        coinData?.id,
+        user?.id,
+        tradeType,
+        quantity,
+        currentPrice,
+        coinData?.symbol
+      );
 
-    await tradeCoin(coinData?.id, user?.id, tradeType, quantity, currentPrice);
+      showSnackbar(
+        `Successfully ${tradeType === "buy" ? "bought" : "sold"} ${quantity} ${
+          coinData?.id
+        }!`,
+        "success"
+      ); // Show Snackbar
 
-    showSnackbar(
-      `Successfully ${tradeType === "buy" ? "bought" : "sold"} ${quantity} ${
-        coinData?.id
-      }!`,
-      "success"
-    ); // Show Snackbar
+      handleCloseTradeModal();
+    } catch (error) {
+      // Handle the error and show snackbar if it's Insufficient funds
+      console.log("error.response.data", error.response.data);
 
-    handleCloseTradeModal();
+      if (
+        error?.response?.data?.error &&
+        error.response.data.error.includes("Insufficient funds")
+      ) {
+        showSnackbar(`${error.response.data?.error}`, "error");
+      } else {
+        // Show a generic error snackbar if it's some other issue
+        showSnackbar(
+          "Failed to complete the trade. Please try again later.",
+          "error"
+        );
+      }
+    }
   };
 
   return (

@@ -11,8 +11,6 @@ const SearchBar = ({ searchTerm, setSearchTerm, loading, suggestions }) => {
     }
   };
 
-  console.log("loading in search", loading);
-
   return (
     <Box sx={{ mb: 4 }}>
       <Autocomplete

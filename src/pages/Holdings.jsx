@@ -15,66 +15,88 @@ import { useNavigate } from "react-router-dom";
 import axios from "axios";
 import { getHoldings } from "../services/apis";
 import useUserSession from "../hooks/useAuth";
+import LoadingScreen from "../components/LoadingScreen";
 
 const Holdings = () => {
   const navigate = useNavigate();
   const { user } = useUserSession();
-
+  const [loading, setLoading] = useState(true);
   const [holdings, setHoldings] = useState([]);
   const [totalInvestment, setTotalInvestment] = useState(0);
   const [currentValue, setCurrentValue] = useState(0);
   const [profitLoss, setProfitLoss] = useState(0);
   const [profitLossPercent, setProfitLossPercent] = useState(0);
 
-  useEffect(() => {
-    if (user?.id) {
-      fetchHoldings();
-    }
-  }, [user]);
-
   const fetchHoldings = async () => {
+    setLoading(true);
+
     try {
       const response = await getHoldings(user?.id);
+
       if (!response || response.length === 0) return;
 
       let totalInvestment = 0;
       let totalQuantity = 0;
       let totalCost = 0;
-      let currentMarketPrice = 90000; // Fetch this dynamically in real implementation
 
       const processedHoldings = response.reduce((acc, trade) => {
-        if (trade.trade_type === "buy") {
-          const quantity = parseFloat(trade.quantity);
-          const priceUsd = parseFloat(trade.price_usd);
-          const totalValueUsd = parseFloat(trade.total_value_usd);
+        const quantity = parseFloat(trade.quantity);
+        const priceUsd = parseFloat(trade.price_usd);
+        const totalValueUsd = parseFloat(trade.total_value_usd);
+        const currentPrice = parseFloat(trade.current_price); // Current price for each coin
 
+        // Handle "buy" trades
+        if (trade.trade_type === "buy") {
           totalInvestment += totalValueUsd;
           totalQuantity += quantity;
           totalCost += priceUsd * quantity;
 
+          // Initialize holding for this coin if not already present
           if (!acc[trade.coin_id]) {
             acc[trade.coin_id] = {
               coin_id: trade.coin_id,
               quantity: 0,
               invested_amount: 0,
               avg_buy_price: 0,
-              current_price: currentMarketPrice,
+              current_price: currentPrice,
             };
           }
+
+          // Update holding information for buy trades
           acc[trade.coin_id].quantity += quantity;
           acc[trade.coin_id].invested_amount += totalValueUsd;
           acc[trade.coin_id].avg_buy_price =
             acc[trade.coin_id].invested_amount / acc[trade.coin_id].quantity;
         }
+
+        // Handle "sell" trades
+        if (trade.trade_type === "sell") {
+          if (acc[trade.coin_id]) {
+            // Reduce the quantity and total investment
+            acc[trade.coin_id].quantity -= quantity;
+            acc[trade.coin_id].invested_amount -= totalValueUsd;
+            totalInvestment -= totalValueUsd;
+          }
+        }
+
         return acc;
       }, {});
 
-      const currentValue = totalQuantity * currentMarketPrice;
+      // Calculate current value of holdings based on the current price of each coin
+      const currentValue = Object.values(processedHoldings).reduce(
+        (acc, holding) => acc + holding.quantity * holding.current_price,
+        0
+      );
+
+      // Calculate profit/loss
       const profitLoss = currentValue - totalInvestment;
+
+      // Calculate profit/loss percentage
       const profitLossPercent = totalInvestment
         ? ((profitLoss / totalInvestment) * 100).toFixed(2)
         : 0;
 
+      // Set the state values
       setHoldings(Object.values(processedHoldings));
       setTotalInvestment(totalInvestment);
       setCurrentValue(currentValue);
@@ -82,9 +104,20 @@ const Holdings = () => {
       setProfitLossPercent(profitLossPercent);
     } catch (error) {
       console.error("Failed to fetch holdings", error);
+    } finally {
+      setLoading(false);
     }
   };
 
+  useEffect(() => {
+    if (user?.id) {
+      fetchHoldings();
+    }
+  }, [user]);
+
+  if (loading) {
+    return <LoadingScreen />;
+  }
   return (
     <Box sx={{ padding: "20px" }}>
       <Grid container spacing={2}>

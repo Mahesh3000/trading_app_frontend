@@ -51,8 +51,6 @@ export const signupUser = async (formData) => {
 
 export const getProfile = async (userId) => {
   try {
-    console.log("userId", userId);
-
     // Use axios to make the request
     const response = await axios.get(`${config.GET_PROFILE_URL}`, {
       params: { userId }, // Send id as a query parameter
@@ -154,6 +152,7 @@ export const tradeCoin = async (
       tradeType,
       quantity,
       priceUsd,
+      coinSymbol,
     });
 
     return response.data; // Returning the response data
@@ -164,13 +163,11 @@ export const tradeCoin = async (
 };
 
 export const getHoldings = async (userId) => {
-  console.log("userId in  controllers", userId);
-
   try {
     const response = await axios.get(`${config.GET_HOLDINGS}`, {
       params: { userId }, // Properly passing userId as a query parameter
     });
-    return response.data.holdings;
+    return response.data.updatedHoldings;
   } catch (error) {
     console.error("Error fetching holdings", error);
     throw error;

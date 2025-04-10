@@ -3,8 +3,6 @@ import React from "react";
 import { Box, Grid, Typography } from "@mui/material";
 
 const DetailsMarketStatus = ({ coinData }) => {
-  // console.log("coinData", coinData);
-
   const marketStats = {
     dayRange: `${
       coinData?.market_data?.high_24h
@@ -21,8 +19,6 @@ const DetailsMarketStatus = ({ coinData }) => {
       ? `${coinData?.market_cap_rank}`
       : "Data not available",
   };
-
-  // console.log("marketStats", marketStats);
 
   return (
     <Box sx={{ padding: "16px" }}>

@@ -31,8 +31,12 @@ const Profile = () => {
   const [profile, setProfile] = useState(null);
   const [loading, setLoading] = useState(true);
   const [trades, setTrades] = useState([]); // State for trades data
-  const [totalProfit, setTotalProfit] = useState(0);
-  const [totalLoss, setTotalLoss] = useState(0);
+  const [plState, setPlState] = useState({
+    totalProfit: 0,
+    totalLoss: 0,
+    netPL: 0,
+    profitLossPercent: 0,
+  });
 
   const handleOpenModal = () => {
     setIsModalOpen(true);
@@ -92,37 +96,56 @@ const Profile = () => {
   };
 
   const calculateProfitLoss = (trades) => {
-    let totalBuyValue = 0;
+    let totalInvestment = 0;
     let totalQuantity = 0;
-    let totalSellValue = 0;
+    let totalCost = 0;
+    let totalCurrentValue = 0; // To hold the total current value of the holdings
 
-    // Selling price (assuming 90,000 USD as an example)
-    const sellingPrice = 90000;
-
-    // Loop through the trades and calculate P/L
-    trades.forEach((trade) => {
+    // Reduce the trades to process them
+    const processedHoldings = trades.reduce((acc, trade) => {
       if (trade.trade_type === "buy") {
-        totalBuyValue += trade.total_value_usd;
-        totalQuantity += trade.quantity;
+        const quantity = parseFloat(trade.quantity);
+        const priceUsd = parseFloat(trade.price_usd);
+        const totalValueUsd = parseFloat(trade.total_value_usd);
+        const currentPrice = parseFloat(trade.current_price); // Use the current price of the coin
+
+        // Update the total investment and quantity
+        totalInvestment += totalValueUsd;
+        totalQuantity += quantity;
+
+        // Calculate the current value of this holding based on the current price
+        totalCurrentValue += currentPrice * quantity;
+
+        if (!acc[trade.coin_id]) {
+          acc[trade.coin_id] = {
+            coin_id: trade.coin_id,
+            quantity: 0,
+            invested_amount: 0,
+            avg_buy_price: 0,
+            current_price: currentPrice, // Storing current price as part of the holding
+          };
+        }
+        acc[trade.coin_id].quantity += quantity;
+        acc[trade.coin_id].invested_amount += totalValueUsd;
+        acc[trade.coin_id].avg_buy_price =
+          acc[trade.coin_id].invested_amount / acc[trade.coin_id].quantity;
       }
+      return acc;
+    }, {});
+
+    // Calculate the profit or loss from the current value
+    const profitLoss = totalCurrentValue - totalInvestment;
+    const profitLossPercent = totalInvestment
+      ? ((profitLoss / totalInvestment) * 100).toFixed(2)
+      : 0;
+
+    // Set the profit/loss state for your page
+    setPlState({
+      totalProfit: profitLoss > 0 ? profitLoss : 0, // Only show profit if positive
+      totalLoss: profitLoss < 0 ? Math.abs(profitLoss) : 0, // Only show loss if negative
+      netPL: profitLoss,
+      profitLossPercent,
     });
-
-    // Assuming we are selling all of the quantity bought at the selling price
-    totalSellValue = totalQuantity * sellingPrice;
-
-    // Calculate Profit or Loss
-    const profitLossAmount = totalSellValue - totalBuyValue;
-    const profitLossPercentage = (profitLossAmount / totalBuyValue) * 100;
-
-    if (profitLossAmount >= 0) {
-      setTotalProfit(profitLossAmount);
-      setTotalLoss(0);
-    } else {
-      setTotalProfit(0);
-      setTotalLoss(Math.abs(profitLossAmount));
-    }
-
-    return profitLossPercentage;
   };
 
   if (loading) {
@@ -168,7 +191,7 @@ const Profile = () => {
               <ArrowDropUpIcon
                 sx={{ verticalAlign: "middle", color: "green" }}
               />{" "}
-              ${totalProfit.toFixed(2)}
+              ${Math.abs(plState.totalProfit).toLocaleString()}
             </Typography>
           </Paper>
         </Grid>
@@ -180,7 +203,7 @@ const Profile = () => {
               <ArrowDropDownIcon
                 sx={{ verticalAlign: "middle", color: "red" }}
               />{" "}
-              ${totalLoss.toFixed(2)}
+              ${plState.totalLoss.toFixed(2)}
             </Typography>
           </Paper>
         </Grid>
@@ -219,7 +242,7 @@ const Profile = () => {
                   Email: {profile?.email}
                 </Typography>
                 <Typography variant="body2" sx={{ fontSize: "1.1rem" }}>
-                  Net P/L: ${totalLoss.toFixed(2)}
+                  Net P/L: ${Math.abs(plState.netPL).toLocaleString()}
                 </Typography>
               </Paper>
             </Grid>
@@ -250,8 +273,9 @@ const Profile = () => {
                         <TableCell>Type</TableCell>
                         <TableCell>Quantity</TableCell>
                         <TableCell>Amount</TableCell>
+                        <TableCell>Current Price</TableCell>
+                        <TableCell>24h Change %</TableCell>
                         <TableCell>Date</TableCell>
-                        <TableCell>P/L %</TableCell>
                       </TableRow>
                     </TableHead>
                     <TableBody>
@@ -267,16 +291,19 @@ const Profile = () => {
                               ${parseFloat(trade.price_usd).toFixed(2)}
                             </TableCell>
                             <TableCell>
-                              {new Date(trade.trade_time).toLocaleDateString()}
+                              ${parseFloat(trade.current_price).toFixed(2)}
                             </TableCell>
                             <TableCell
                               sx={{
                                 color:
-                                  trade.pl_percentage >= 0 ? "green" : "red",
+                                  trade.change_percent >= 0 ? "green" : "red",
                               }}
                             >
-                              {trade.pl_percentage >= 0 ? "+" : "-"}{" "}
-                              {Math.abs(trade.pl_percentage)}%
+                              {trade.change_percent >= 0 ? "+" : "-"}{" "}
+                              {trade.change_percent.toFixed(2)}%
+                            </TableCell>
+                            <TableCell>
+                              {new Date(trade.trade_time).toLocaleDateString()}
                             </TableCell>
                           </TableRow>
                         ))

@@ -131,7 +131,7 @@ const Watchlist = () => {
                   fontWeight="bold"
                   sx={{ marginRight: "10px" }}
                 >
-                  {stock.current_price}
+                  {stock.current_price?.toFixed(2)}
                 </Typography>
                 <Typography
                   variant="h6"
