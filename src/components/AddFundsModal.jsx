@@ -22,8 +22,6 @@ const AddFundsModal = ({ open, onClose, onAddFunds }) => {
   };
 
   const handleAddFundsClick = () => {
-    // Implement your add funds logic here, using the 'amount' state
-    console.log("Adding funds:", amount);
     setAmount("");
     onAddFunds(amount); // Call the onAddFunds prop to notify parent
     onClose(); // Close the modal

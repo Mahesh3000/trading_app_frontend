@@ -82,7 +82,7 @@ const Sidebar = () => {
         },
       }}
     >
-      <div className="h-screen bg-white border-r flex flex-col items-center p-4">
+      <div className="h-screen border-r flex flex-col items-center p-4">
         <div className="w-full flex justify-between items-center">
           {state.open && (
             <span className="text-lg font-semibold">{state.name}</span>

@@ -7,25 +7,16 @@ import InstagramIcon from "@mui/icons-material/Instagram";
 
 const Footer = () => {
   return (
-    <Box
-      sx={{
-        backgroundColor: "#fff", // White background
-        color: "#333", // Darker text color
-        padding: "40px 16px", // Increased padding
-        textAlign: "left", // Align text to left
-        marginTop: "auto",
-        borderTop: "1px solid #ddd", // Add top border
-      }}
-    >
+    <Box>
       <Grid container spacing={2} justifyContent="space-between">
         <Grid item xs={12} md={4}>
           <Typography variant="h6" sx={{ marginBottom: "12px" }}>
             About Virtual Trading
           </Typography>
           <Typography variant="body2" sx={{ marginBottom: "24px" }}>
-            A platform designed to help you learn and practice stock trading
-            without financial risk. Start your trading journey today with
-            virtual money.
+            A platform designed to help you learn and practice cryptocurrency
+            trading without any financial risk. Start your crypto journey today
+            with virtual assets
           </Typography>
         </Grid>
 

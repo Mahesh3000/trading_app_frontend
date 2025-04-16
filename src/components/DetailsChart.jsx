@@ -12,7 +12,6 @@ const DetailsChart = ({ chartData, selectedMetric }) => {
   const [areaSeries, setAreaSeries] = useState(null); // Add areaSeries to state
 
   const [candlestickSeries, setCandlestickSeries] = useState(null);
-  console.log("selectedMetric", selectedMetric);
 
   useEffect(() => {
     const chartInstance = createChart(
