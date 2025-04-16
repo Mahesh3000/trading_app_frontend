@@ -29,8 +29,6 @@ function App() {
 
   return (
     <LoadingProvider>
-      {" "}
-      {/* Move LoadingProvider here to wrap everything */}
       <Router>
         <ThemeProvider>
           <AuthProvider>
