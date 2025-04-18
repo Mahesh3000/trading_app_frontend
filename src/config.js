@@ -1,17 +1,18 @@
 // src/config.js
 
 const config = {
-  SEARCH_SCRIPS_URL: "http://44.206.196.76:8000/api/search",
-  LOGIN_URL: "http://44.206.196.76:8000/api/users/login",
-  SIGNUP_URL: "http://44.206.196.76:8000/api/users/signup",
-  GET_PROFILE_URL: "http://44.206.196.76:8000/api/users/profile",
-  ADD_FUNDS: "http://44.206.196.76:8000/api/users/add-funds",
-  ADD_WATCHLIST_URL: "http://44.206.196.76:8000/api/watchlist/add-to-watchlist",
-  GET_WATCHLIST_URL: "http://44.206.196.76:8000/api/watchlist",
-  DELETE_WATCHLIST_URL: "http://44.206.196.76:8000/api/watchlist/remove",
-  GET_COIN_DATA: "http://44.206.196.76:8000/api/coin",
-  TRADE_URL: "http://44.206.196.76:8000/api/trade",
-  GET_HOLDINGS: "http://44.206.196.76:8000/api/holdings",
+  SEARCH_SCRIPS_URL: "https://api.maheshsivangi.tech/api/search",
+  LOGIN_URL: "https://api.maheshsivangi.tech/api/users/login",
+  SIGNUP_URL: "https://api.maheshsivangi.tech/api/users/signup",
+  GET_PROFILE_URL: "https://api.maheshsivangi.tech/api/users/profile",
+  ADD_FUNDS: "https://api.maheshsivangi.tech/api/users/add-funds",
+  ADD_WATCHLIST_URL:
+    "https://api.maheshsivangi.tech/api/watchlist/add-to-watchlist",
+  GET_WATCHLIST_URL: "https://api.maheshsivangi.tech/api/watchlist",
+  DELETE_WATCHLIST_URL: "https://api.maheshsivangi.tech/api/watchlist/remove",
+  GET_COIN_DATA: "https://api.maheshsivangi.tech/api/coin",
+  TRADE_URL: "https://api.maheshsivangi.tech/api/trade",
+  GET_HOLDINGS: "https://api.maheshsivangi.tech/api/holdings",
 };
 
 export default config;
